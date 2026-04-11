@@ -1,5 +1,4 @@
 <?php
-
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
 use Illuminate\Support\Facades\Route;
@@ -14,11 +13,11 @@ Route::get('/beranda', function () {
 });
 
 Route::get('/layanan', function () {
-    return redirect('/#layanan');
+    return redirect('layanan');
 });
 
 Route::get('/tentang', function () {
-    return redirect('/#tentang');
+    return redirect('tentang');
 });
 
 // REPORT (WAJIB LOGIN)
@@ -28,7 +27,7 @@ Route::middleware(['auth'])->group(function () {
 
 Route::get('/dashboard', function () {
     return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+})->middleware('auth')->name('dashboard');
 
 // PROFILE
 Route::middleware('auth')->group(function () {
