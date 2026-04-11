@@ -13,15 +13,16 @@
 <body class="bg-gray-100 font-[Poppins]">
 
 <!-- TOP BAR -->
-<div class="bg-[#A8DADC] text-center text-xs py-1 tracking-wide">
+<div class="bg-[#A8DADC] text-white text-center text-xs py-1 tracking-wide">
     LAPOR KERUSAKAN FASILITAS UMUM
 </div>
 
 <!-- HEADER -->
-<div class="bg-white text-center py-6 shadow-sm">
-    <h1 class="text-5xl font-bold tracking-tight">
-        E-Report<span class="text-blue-600">.</span>
-    </h1>
+<div class="flex justify-center">
+                <img src="{{ asset('images/logo_e-report.png') }}" 
+                     alt="Logo" 
+                     class="h-16 w-auto drop-shadow-lg">
+            </div>
     
 
 

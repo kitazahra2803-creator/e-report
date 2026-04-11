@@ -10,8 +10,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
+use Illuminate\Validation\Rules\Password as RulesPassword;  // TAMBAHKAN INI
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
+use Illuminate\Validation\Rule;  // TAMBAHKAN INI (opsional, untuk validasi unique)
 
 class RegisteredUserController extends Controller
 {
@@ -32,13 +34,25 @@ class RegisteredUserController extends Controller
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
+            'username' => ['required', 'string', 'max:255', 'unique:'.User::class],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'phone' => ['required', 'string', 'max:20'],
+            'village' => ['required', 'string'],
+            'district' => ['required', 'string'],
+            'province' => ['required', 'string'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'terms' => ['accepted'],
+            'robot' => ['accepted'],
         ]);
 
         $user = User::create([
             'name' => $request->name,
+            'username' => $request->username,
             'email' => $request->email,
+            'phone' => $request->phone,
+            'village' => $request->village,
+            'district' => $request->district,
+            'province' => $request->province,
             'password' => Hash::make($request->password),
         ]);
 
