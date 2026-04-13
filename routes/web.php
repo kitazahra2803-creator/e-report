@@ -1,9 +1,9 @@
 <?php
+
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
 use Illuminate\Support\Facades\Route;
 
-// Semua halaman diarahkan ke welcome (one page)
 Route::get('/', function () {
     return view('welcome');
 })->name('home');
@@ -13,21 +13,24 @@ Route::get('/beranda', function () {
 });
 
 Route::get('/layanan', function () {
-    return redirect('layanan');
+    return redirect('/');
 });
 
 Route::get('/tentang', function () {
-    return redirect('tentang');
-});
-
-// REPORT (WAJIB LOGIN)
-Route::middleware(['auth'])->group(function () {
-    Route::resource('reports', ReportController::class);
+    return redirect('/');
 });
 
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware('auth')->name('dashboard');
+
+Route::get('/reports/success/{id}', [ReportController::class, 'success'])
+    ->name('reports.success');
+
+// REPORT
+Route::middleware(['auth'])->group(function () {
+    Route::resource('reports', ReportController::class);
+});
 
 // PROFILE
 Route::middleware('auth')->group(function () {

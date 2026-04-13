@@ -24,7 +24,7 @@
     <input type="text" name="lokasi" placeholder="Lokasi"
            class="w-full mb-3 p-2 border rounded">
 
-    <input type="file" name="gambar" class="mb-3">
+    <input type="file" name="foto" class="mb-3">
 
     <button class="bg-blue-500 text-white px-4 py-2 rounded w-full">
         Kirim Laporan

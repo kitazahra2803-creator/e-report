@@ -12,7 +12,7 @@ class Report extends Model
         'judul',
         'deskripsi', 
         'lokasi', 
-        'gambar', 
+        'foto', 
         'status'
         ];
 

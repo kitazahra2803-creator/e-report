@@ -13,67 +13,90 @@ class ReportController extends Controller
         $this->middleware('auth');
     }
 
-    // INI UNTUK DASHBOARD (MENAMPILKAN SEMUA LAPORAN USER)
+    // ================= DASHBOARD =================
     public function index()
     {
-        $reports = Report::where('user_id', Auth::id())->latest()->get();
-        
-        $totalReports = $reports->count();
-        $waitingReports = $reports->where('status', 'menunggu')->count();
-        $processedReports = $reports->where('status', 'diproses')->count();
-        $completedReports = $reports->where('status', 'selesai')->count();
+        $reports = Report::where('user_id', Auth::id())
+            ->latest()
+            ->get();
 
-        return view('dashboard', compact('reports', 'totalReports', 'waitingReports', 'processedReports', 'completedReports'));
+        return view('dashboard', [
+            'reports' => $reports,
+            'totalReports' => $reports->count(),
+            'waitingReports' => $reports->where('status', 'menunggu')->count(),
+            'processedReports' => $reports->where('status', 'diproses')->count(),
+            'completedReports' => $reports->where('status', 'selesai')->count(),
+        ]);
     }
 
+    // ================= FORM CREATE =================
     public function create()
     {
         return view('reports.create');
     }
 
+    // ================= STORE =================
     public function store(Request $request)
     {
         $request->validate([
             'judul' => 'required|string|max:255',
             'deskripsi' => 'required|string',
             'lokasi' => 'required|string',
-            'gambar' => 'nullable|image|mimes:jpg,png,jpeg|max:2048'
+            'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
-        $pathGambar = null;
+        $pathFoto = null;
 
-        if ($request->hasFile('gambar')) {
-            $pathGambar = $request->file('gambar')->store('reports', 'public');
+        if ($request->hasFile('foto')) {
+            $pathFoto = $request->file('foto')->store('reports', 'public');
         }
 
-        Report::create([
-            'user_id' => auth()->id(),
+        $report = Report::create([
+            'user_id' => Auth::id(),
             'judul' => $request->judul,
             'deskripsi' => $request->deskripsi,
             'lokasi' => $request->lokasi,
-            'gambar' => $pathGambar,
-            'status' => 'menunggu', // default status
+            'foto' => $pathFoto,
+            'status' => 'menunggu',
         ]);
 
-        return redirect()->route('dashboard')->with('success', 'Laporan berhasil dikirim!');
+        // 🔥 REDIRECT KE SUCCESS PAGE (INI YANG BENAR)
+        return redirect()->route('reports.success', $report->id);
     }
 
+    // ================= SUCCESS PAGE =================
+    public function success($id)
+    {
+        $report = Report::findOrFail($id);
+
+        if ($report->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        return view('reports.success', compact('report'));
+    }
+
+    // ================= SHOW DETAIL =================
     public function show(Report $report)
     {
         if ($report->user_id !== Auth::id()) {
             abort(403);
         }
+
         return view('reports.show', compact('report'));
     }
 
+    // ================= EDIT =================
     public function edit(Report $report)
     {
         if ($report->user_id !== Auth::id()) {
             abort(403);
         }
+
         return view('reports.edit', compact('report'));
     }
 
+    // ================= UPDATE =================
     public function update(Request $request, Report $report)
     {
         if ($report->user_id !== Auth::id()) {
@@ -92,9 +115,11 @@ class ReportController extends Controller
             'lokasi' => $request->lokasi,
         ]);
 
-        return redirect()->route('dashboard')->with('success', 'Laporan berhasil diupdate!');
+        return redirect()->route('reports.show', $report->id)
+            ->with('success', 'Laporan berhasil diupdate!');
     }
 
+    // ================= DELETE =================
     public function destroy(Report $report)
     {
         if ($report->user_id !== Auth::id()) {
@@ -103,6 +128,7 @@ class ReportController extends Controller
 
         $report->delete();
 
-        return redirect()->route('dashboard')->with('success', 'Laporan berhasil dihapus!');
+        return redirect()->route('dashboard')
+            ->with('success', 'Laporan berhasil dihapus!');
     }
 }
