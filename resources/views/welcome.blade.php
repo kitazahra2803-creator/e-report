@@ -42,10 +42,8 @@
                 <!-- Tombol kanan -->
                 <div class="absolute right-0 top-1/2 transform -translate-y-1/2">
                     @auth
-                        <a href="/dashboard"
-                           class="bg-blue-500 hover:bg-blue-600 text-white px-5 py-2 rounded-full shadow transition">
-                            Dashboard
-                        </a>
+                        <div class="flex items-center space-x-2">
+                        <span class="text-sm text-gray-600">Halo, {{ Auth::user()->name }}</span>
                     @else
                         <a href="/register"
                            class="bg-blue-500 hover:bg-blue-600 text-white px-5 py-2 rounded-full shadow transition">
@@ -89,7 +87,7 @@
                         LAPOR
                     </a>
                 @else
-                    <a href="{{ route('reports.create') }}" class="inline-block bg-blue-600 text-white px-12 py-4 rounded-full text-xl font-bold hover:bg-red-700 shadow-lg">
+                    <a href="{{ route('dashboard') }}" class="inline-block bg-blue-600 text-white px-12 py-4 rounded-full text-xl font-bold hover:bg-red-700 shadow-lg">
                         LAPOR
                     </a>
                 @endguest

@@ -1,86 +1,103 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex justify-between items-center">
+        <diV class="flex justify-between items-center">
             <div>
                 <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                     Dashboard Masyarakat
                 </h2>
                 <p class="text-sm text-gray-500">{{ Auth::user()->name }} - Sindang</p>
             </div>
-            <div class="flex items-center space-x-2">
-                <span class="text-sm text-gray-600">Halo, {{ Auth::user()->name }}</span>
-                <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
-                    {{ substr(Auth::user()->name, 0, 1) }}
-                </div>
+            <!-- Right side menu -->
+            <div class="hidden sm:flex sm:items-center sm:ms-6">
+                @auth
+                    <!-- Settings Dropdown (untuk user yang sudah login) -->
+                    <x-dropdown align="right" width="48">
+                        <x-slot name="trigger">
+                            <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
+                                <div>{{ Auth::user()->name }}</div>
+                                <div class="ms-1">
+                                    <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                            </button>
+                        </x-slot>
+
+                        <x-slot name="content">
+                            <x-dropdown-link :href="route('profile.edit')">
+                                {{ __('Profile') }}
+                            </x-dropdown-link>
+
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <x-dropdown-link :href="route('logout')"
+                                        onclick="event.preventDefault(); this.closest('form').submit();">
+                                    {{ __('Log Out') }}
+                                </x-dropdown-link>
+                            </form>
+                        </x-slot>
+                    </x-dropdown>
+                @else
+                    <!-- Tombol untuk user yang belum login -->
+                    <div class="flex space-x-4">
+                        <a href="{{ route('login') }}" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+                            {{ __('Masuk') }}
+                        </a>
+                        <a href="{{ route('register') }}" class="bg-indigo-600 text-white hover:bg-indigo-700 px-4 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out">
+                            {{ __('Daftar') }}
+                        </a>
+                    </div>
+                @endauth
             </div>
         </div>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+    <div class="py-10">
+        <div class="w-full px-6">
             
             <!-- STATISTIK CARDS -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <!-- Total Laporan -->
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 text-center">
-                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                        </svg>
-                    </div>
-                    <h3 class="text-3xl font-bold text-gray-800">{{ $totalReports ?? 0 }}</h3>
-                    <p class="text-sm text-gray-500 mt-1">Total Laporan</p>
-                </div>
+            <div class="flex justify-center mt-6">
+                <div class="flex gap-6 flex-wrap justify-center">
 
-                <!-- Menunggu -->
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 text-center">
-                    <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                        <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
+                    <!-- Total -->
+                    <div class="rounded-lg flex flex-col justify-center items-center shadow"
+                        style="width: 290px; height: 180px; background-color: #FFFDE1;">
+                        <div class="text-blue-500 text-3xl mb-2">📄</div>
+                        <p class="text-2xl font-bold">{{ $totalReports ?? 0 }}</p>
+                        <p class="text-sm text-gray-600">Total Laporan</p>
                     </div>
-                    <h3 class="text-3xl font-bold text-gray-800">{{ $waitingReports ?? 0 }}</h3>
-                    <p class="text-sm text-gray-500 mt-1">Menunggu</p>
-                </div>
 
-                <!-- Diproses -->
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 text-center">
-                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-                        </svg>
+                    <!-- Menunggu -->
+                    <div class="rounded-lg flex flex-col justify-center items-center shadow"
+                        style="width: 290px; height: 180px; background-color: #FFFDE1;">
+                        <div class="text-yellow-500 text-3xl mb-2">⏱️</div>
+                        <p class="text-2xl font-bold">{{ $waitingReports ?? 0 }}</p>
+                        <p class="text-sm text-gray-600">Menunggu</p>
                     </div>
-                    <h3 class="text-3xl font-bold text-gray-800">{{ $processedReports ?? 0 }}</h3>
-                    <p class="text-sm text-gray-500 mt-1">Diproses</p>
-                </div>
 
-                <!-- Selesai -->
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 text-center">
-                    <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
+                    <!-- Diproses -->
+                    <div class="rounded-lg flex flex-col justify-center items-center shadow"
+                        style="width: 290px; height: 180px; background-color: #FFFDE1;">
+                        <div class="text-red-500 text-3xl mb-2">❗</div>
+                        <p class="text-2xl font-bold">{{ $processedReports ?? 0 }}</p>
+                        <p class="text-sm text-gray-600">Diproses</p>
                     </div>
-                    <h3 class="text-3xl font-bold text-gray-800">{{ $completedReports ?? 0 }}</h3>
-                    <p class="text-sm text-gray-500 mt-1">Selesai</p>
+
+                    <!-- Selesai -->
+                    <div class="rounded-lg flex flex-col justify-center items-center shadow"
+                        style="width: 290px; height: 180px; background-color: #FFFDE1;">
+                        <div class="text-green-500 text-3xl mb-2">✅</div>
+                        <p class="text-2xl font-bold">{{ $completedReports ?? 0 }}</p>
+                        <p class="text-sm text-gray-600">Selesai</p>
+                    </div>
+
                 </div>
             </div>
-
-            <!-- BUAT LAPORAN BARU -->
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-8">
-                <div class="p-6 flex justify-between items-center">
-                    <div>
-                        <h3 class="text-lg font-semibold text-gray-800">Buat Laporan Baru</h3>
-                        <p class="text-sm text-gray-500">Laporkan kerusakan fasilitas umum di sekitar Anda</p>
-                    </div>
-                    <a href="{{ route('reports.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold transition">
-                        + Buat Laporan
-                    </a>
-                </div>
-            </div>
-
+            <div class="flex justify-center mt-6 mb-10">
+            <div class="w-full px-6 space-y-10">
+                
             <!-- RIWAYAT LAPORAN SAYA -->
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+            <div class="overflow-hidden shadow-sm sm:rounded-lg" style="background-color: #FFFDE1;">
                 <div class="border-b border-gray-200 px-6 py-4">
                     <h3 class="text-lg font-semibold text-gray-800">Riwayat Laporan Saya</h3>
                     <p class="text-sm text-gray-500">Daftar laporan yang telah Anda buat</p>
