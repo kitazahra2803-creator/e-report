@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - E-Report</title>
+    <title>Admin Dashboard - E-Report</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
@@ -15,21 +15,11 @@
     <!-- HEADER -->
     <div class="bg-[#7fc8c6] px-8 py-6 shadow">
         <div class="flex items-center justify-between">
-
-            <!-- KIRI -->
             <div>
-                <h1 class="text-2xl font-bold text-white">
-                    Dashboard Masyarakat
-                </h1>
-                <p class="text-white text-sm">
-                    {{ Auth::user()->name }} - Sindang
-                </p>
+                <h1 class="text-2xl font-bold text-white">Dashboard Admin Kecamatan</h1>
+                <p class="text-white text-sm">Admin Kecamatan Sindang</p>
             </div>
-
-            <!-- KANAN -->
             <div class="flex items-center gap-4">
-
-                <!-- DROPDOWN -->
                 <div class="relative">
                     <button id="dropdownBtn" class="flex items-center text-white text-sm font-medium focus:outline-none">
                         {{ Auth::user()->name }}
@@ -45,12 +35,8 @@
                         </form>
                     </div>
                 </div>
-
-                <!-- LOGO -->
-                <img src="{{ asset('images/logo_e-report.png') }}" 
-                     class="h-12 bg-white px-2 py-1 rounded shadow">
+                <img src="{{ asset('images/logo_e-report.png') }}" class="h-12 bg-white px-2 py-1 rounded shadow">
             </div>
-
         </div>
     </div>
 
@@ -71,7 +57,7 @@
                     <p class="text-sm text-gray-500">Menunggu</p>
                 </div>
                 <div class="rounded-xl shadow p-4 text-center bg-white">
-                    <div class="text-red-500 text-3xl mb-1">❗</div>
+                    <div class="text-blue-500 text-3xl mb-1">🔄</div>
                     <p class="text-2xl font-bold">{{ $processedReports ?? 0 }}</p>
                     <p class="text-sm text-gray-500">Diproses</p>
                 </div>
@@ -82,42 +68,57 @@
                 </div>
             </div>
 
-            <!-- BUTTON -->
-            <div class="mt-6">
-                <a href="{{ route('reports.create') }}" 
-                   class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-full shadow transition">
-                    <span class="text-lg font-bold">+</span> Buat Laporan Baru
-                </a>
+            <!-- FILTER DESA & STATUS -->
+            <div class="flex flex-wrap justify-between items-center gap-3 mt-6 mb-4">
+                <div class="flex gap-3 flex-wrap">
+                    <select id="desaFilter" class="px-4 py-2 border rounded-lg text-sm bg-white shadow-sm">
+                        <option value="semua">Semua Desa</option>
+                        @foreach($desas as $desa)
+                            <option value="{{ $desa->id }}">{{ $desa->nama_desa }}</option>
+                        @endforeach
+                    </select>
+                    <select id="statusFilter" class="px-4 py-2 border rounded-lg text-sm bg-white shadow-sm">
+                        <option value="semua">Semua Status</option>
+                        <option value="menunggu">Menunggu</option>
+                        <option value="diproses">Diproses</option>
+                        <option value="selesai">Selesai</option>
+                        <option value="ditolak">Ditolak</option>
+                    </select>
+                </div>
+                <p class="text-sm text-gray-500" id="totalLaporanText">
+                    Menampilkan {{ $reports->count() }} dari {{ $totalReports }} laporan
+                </p>
             </div>
 
-            <!-- RIWAYAT -->
-            <div class="mt-8 bg-white rounded-xl shadow overflow-hidden">
+            <!-- TABEL LAPORAN -->
+            <div class="bg-white rounded-xl shadow overflow-hidden">
                 <div class="px-6 py-4 border-b border-gray-200">
-                    <h3 class="text-lg font-semibold text-gray-800">Riwayat Laporan Saya</h3>
-                    <p class="text-sm text-gray-500">Daftar laporan yang telah Anda buat</p>
+                    <h3 class="text-lg font-semibold text-gray-800">Laporan Dari Masyarakat</h3>
+                    <p class="text-sm text-gray-500">Daftar laporan yang masuk dari seluruh desa di Kecamatan Sindang</p>
                 </div>
                 <div class="p-4">
-                    @if(isset($reports) && count($reports) > 0)
                     <div class="overflow-x-auto">
                         <table class="min-w-full border-collapse">
                             <thead>
-                                <tr class="border-b border-gray-200">
+                                <tr class="border-b border-gray-200 bg-gray-50">
                                     <th class="text-left py-3 px-3 text-sm font-semibold text-gray-700">Tanggal</th>
                                     <th class="text-left py-3 px-3 text-sm font-semibold text-gray-700">Judul Laporan</th>
                                     <th class="text-left py-3 px-3 text-sm font-semibold text-gray-700">Lokasi</th>
-                                    <th class="text-left py-3 px-3 text-sm font-semibold text-gray-700">Desa Tujuan</th>
+                                    <th class="text-left py-3 px-3 text-sm font-semibold text-gray-700">Desa</th>
+                                    <th class="text-left py-3 px-3 text-sm font-semibold text-gray-700">Pelapor</th>
                                     <th class="text-left py-3 px-3 text-sm font-semibold text-gray-700">Status</th>
-                                    <th class="text-left py-3 px-3 text-sm font-semibold text-gray-700">Alasan Ditolak</th>
+                                    <th class="text-left py-3 px-3 text-sm font-semibold text-gray-700">Kewenangan</th>
                                     <th class="text-left py-3 px-3 text-sm font-semibold text-gray-700">Aksi</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody id="reportsTableBody">
                                 @foreach($reports as $report)
-                                <tr class="border-b border-gray-100 hover:bg-gray-50">
+                                <tr class="border-b border-gray-100 hover:bg-gray-50 report-row" data-desa="{{ $report->desa_id }}" data-status="{{ $report->status }}">
                                     <td class="py-3 px-3 text-sm text-gray-700">{{ $report->created_at->format('d/m/Y') }}</td>
                                     <td class="py-3 px-3 text-sm font-medium text-gray-800">{{ $report->judul }}</td>
                                     <td class="py-3 px-3 text-sm text-gray-700">{{ $report->lokasi }}</td>
-                                    <td class="py-3 px-3 text-sm text-gray-700">{{ $report->desa }}</td>
+                                    <td class="py-3 px-3 text-sm text-gray-700">{{ $report->desa }}</td>  <!-- GANTI DI SINI -->
+                                    <td class="py-3 px-3 text-sm text-gray-700">{{ $report->user->name ?? 'Unknown' }}</td>
                                     <td class="py-3 px-3">
                                         <span class="px-3 py-1 text-xs rounded-full font-semibold
                                             @if($report->status == 'selesai') bg-green-100 text-green-700
@@ -127,34 +128,15 @@
                                             {{ ucfirst($report->status) }}
                                         </span>
                                     </td>
-                                    <td class="py-3 px-3 text-sm text-red-600 max-w-[200px] truncate">
-                                        @if($report->status == 'ditolak')
-                                            @if($report->alasan_tolak_kecamatan)
-                                                <span title="{{ $report->alasan_tolak_kecamatan }}">Kec: {{ Str::limit($report->alasan_tolak_kecamatan, 30) }}</span>
-                                            @elseif($report->alasan_tolak)
-                                                <span title="{{ $report->alasan_tolak }}">Desa: {{ Str::limit($report->alasan_tolak, 30) }}</span>
-                                            @else
-                                                -
-                                            @endif
-                                        @else
-                                            -
-                                        @endif
-                                    </td>
+                                    <td class="py-3 px-3 text-sm text-gray-700">{{ $report->kewenangan ?? 'Desa' }}</td>
                                     <td class="py-3 px-3">
-                                        <a href="{{ route('reports.show', $report->id) }}" class="text-blue-600 hover:text-blue-800 text-sm">Detail</a>
+                                        <a href="{{ route('admin.reports.show', $report->id) }}" class="text-blue-600 hover:text-blue-800 text-sm">Detail</a>
                                     </td>
                                 </tr>
                                 @endforeach
                             </tbody>
                         </table>
                     </div>
-                    @else
-                    <div class="text-center py-12">
-                        <div class="text-6xl mb-4">📁</div>
-                        <p class="text-gray-500 mb-4">Anda belum memiliki laporan</p>
-                        <a href="{{ route('reports.create') }}" class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg">+ Buat Laporan Baru</a>
-                    </div>
-                    @endif
                 </div>
             </div>
 
@@ -162,6 +144,7 @@
     </div>
 
     <script>
+        // Dropdown toggle
         document.getElementById('dropdownBtn').addEventListener('click', function() {
             var menu = document.getElementById('dropdownMenu');
             menu.classList.toggle('hidden');
@@ -173,6 +156,31 @@
                 menu.classList.add('hidden');
             }
         });
+
+        // Filter desa dan status
+        function filterTable() {
+            let desaValue = document.getElementById('desaFilter').value;
+            let statusValue = document.getElementById('statusFilter').value;
+            let rows = document.querySelectorAll('.report-row');
+            let visibleCount = 0;
+            
+            rows.forEach(row => {
+                let desaMatch = (desaValue === 'semua' || row.dataset.desa === desaValue);
+                let statusMatch = (statusValue === 'semua' || row.dataset.status === statusValue);
+                
+                if (desaMatch && statusMatch) {
+                    row.style.display = '';
+                    visibleCount++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+            
+            document.getElementById('totalLaporanText').innerText = `Menampilkan ${visibleCount} dari {{ $totalReports }} laporan`;
+        }
+        
+        document.getElementById('desaFilter').addEventListener('change', filterTable);
+        document.getElementById('statusFilter').addEventListener('change', filterTable);
     </script>
 
 </body>

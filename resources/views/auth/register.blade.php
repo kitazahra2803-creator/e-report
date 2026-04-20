@@ -72,7 +72,16 @@
                                 <label class="block text-gray-700 font-semibold mb-1">Desa *</label>
                                 <select name="village" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                                     <option value="">Pilih Desa</option>
-                                    <option value="Pulau Data" {{ old('village') == 'Desa Sindang' ? 'selected' : '' }}>Desa Sindang</option>
+                                    <option value="Desa Sindang" {{ old('village') == 'Desa Sindang' ? 'selected' : '' }}>Desa Sindang</option>
+                                    <option value="Desa Terusan" {{ old('village') == 'Desa Terusan' ? 'selected' : '' }}>Desa Terusan</option>
+                                    <option value="Desa Wanantara" {{ old('village') == 'Desa Wanantara' ? 'selected' : '' }}>Desa Wanantara</option>
+                                    <option value="Desa Panyindangan Kulon" {{ old('village') == 'Desa Panyindangan Kulon' ? 'selected' : '' }}>Desa Panyindangan Kulon</option>
+                                    <option value="Desa Rambatan Wetan" {{ old('village') == 'Desa Rambatan Wetan' ? 'selected' : '' }}>Desa Rambatan Wetan</option>
+                                    <option value="Desa Panyindangan Wetan" {{ old('village') == 'Desa Panyindangan Wetan' ? 'selected' : '' }}>Desa Panyindangan Wetan</option>
+                                    <option value="Desa Kenanga" {{ old('village') == 'Desa Kenanga' ? 'selected' : '' }}>Desa Kenanga</option>
+                                    <option value="Desa Babadan" {{ old('village') == 'Desa Babadan' ? 'selected' : '' }}>Desa Babadan</option>
+                                    <option value="Desa Dermayu" {{ old('village') == 'Desa Dermayu' ? 'selected' : '' }}>Desa Dermayu</option>
+                                    <option value="Desa Rambatan Kulon" {{ old('village') == 'Desa Rambatan Kulon' ? 'selected' : '' }}>Desa Rambatan Kulon</option>
                                 </select>
                                 @error('village') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                             </div>

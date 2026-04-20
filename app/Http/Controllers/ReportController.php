@@ -32,7 +32,8 @@ class ReportController extends Controller
     // ================= FORM CREATE =================
     public function create()
     {
-        return view('reports.create');
+        $desas = \App\Models\Desa::all(); // TAMBAHKAN INI
+        return view('reports.create', compact('desas')); // UBAH INI
     }
 
     // ================= STORE =================
@@ -40,6 +41,7 @@ class ReportController extends Controller
     {
         $request->validate([
             'judul' => 'required|string|max:255',
+            'desa_id' => 'required|exists:desas,id', // UBAH: desa menjadi desa_id
             'deskripsi' => 'required|string',
             'lokasi' => 'required|string',
             'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
@@ -51,16 +53,21 @@ class ReportController extends Controller
             $pathFoto = $request->file('foto')->store('reports', 'public');
         }
 
+        // Ambil nama desa dari tabel desas
+        $desa = \App\Models\Desa::find($request->desa_id);
+
         $report = Report::create([
             'user_id' => Auth::id(),
             'judul' => $request->judul,
+            'desa' => $desa->nama_desa, // simpan nama desa
+            'desa_id' => $request->desa_id, // simpan ID desa
             'deskripsi' => $request->deskripsi,
             'lokasi' => $request->lokasi,
             'foto' => $pathFoto,
             'status' => 'menunggu',
         ]);
 
-        // 🔥 REDIRECT KE SUCCESS PAGE (INI YANG BENAR)
+        // REDIRECT KE SUCCESS PAGE
         return redirect()->route('reports.success', $report->id);
     }
 

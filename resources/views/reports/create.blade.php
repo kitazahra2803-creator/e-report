@@ -59,12 +59,19 @@
                         class="w-full mt-1 bg-white rounded-lg px-4 py-2 border">
                 </div>
 
-                <!-- DESA -->
+                <!-- DESA (DROPDOWN) -->
                 <div>
-                    <label class="font-semibold">Desa*</label>
-                    <input type="text" name="desa"
-                        placeholder="Pilih Desa"
-                        class="w-full mt-1 bg-white rounded-lg px-4 py-2 border">
+                    <label class="font-semibold">Desa Tujuan Laporan*</label>
+                    <select name="desa_id" required
+                        class="w-full mt-1 bg-white rounded-lg px-4 py-2 border focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">Pilih Desa Tujuan</option>
+                        @foreach($desas as $desa)
+                            <option value="{{ $desa->id }}" {{ old('desa_id') == $desa->id ? 'selected' : '' }}>
+                                {{ $desa->nama_desa }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <p class="text-xs text-gray-500 mt-1">Laporan akan dikirim ke admin desa yang dipilih</p>
                 </div>
 
                 <!-- LOKASI -->
@@ -84,18 +91,17 @@
                 </div>
 
                 <!-- FOTO -->
-<div>
-    <label class="font-semibold">Foto Kerusakan (Opsional)*</label>
+                <div>
+                    <label class="font-semibold">Foto Kerusakan (Opsional)</label>
 
-    <label for="fotoUpload"
-           class="mt-2 border-2 border-dashed rounded-lg p-6 text-center text-gray-500 block cursor-pointer hover:bg-gray-100">
-        Klik untuk upload foto
+                    <label for="fotoUpload"
+                           class="mt-2 border-2 border-dashed rounded-lg p-6 text-center text-gray-500 block cursor-pointer hover:bg-gray-100">
+                        Klik untuk upload foto
+                        <p class="text-xs mt-1 text-gray-400">PNG, JPG, JPEG</p>
+                    </label>
 
-        <p class="text-xs mt-1 text-gray-400">PNG, JPG, JPEG</p>
-    </label>
-
-    <input id="fotoUpload" type="file" name="foto" class="hidden">
-</div>
+                    <input id="fotoUpload" type="file" name="foto" class="hidden">
+                </div>
 
                 <!-- BUTTON -->
                 <div class="flex justify-between mt-4">

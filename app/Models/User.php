@@ -27,6 +27,8 @@ class User extends Authenticatable
         'district',
         'province',
         'password',
+        'role',           // TAMBAHKAN
+        'desa_id',        // TAMBAHKAN
     ];
 
     /**
@@ -50,5 +52,21 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Relasi ke desa
+     */
+    public function desa()
+    {
+        return $this->belongsTo(Desa::class);
+    }
+
+    /**
+     * Relasi ke laporan
+     */
+    public function reports()
+    {
+        return $this->hasMany(Report::class);
     }
 }

@@ -7,10 +7,10 @@
 </head>  <body class="min-h-screen relative">  <!-- HEADER -->  <div class="bg-[#7fc8c6] px-8 py-6 shadow">  
     <div class="flex items-center justify-between">  <div>  
         <h1 class="text-2xl font-bold text-white">  
-            E-Report  
+              
         </h1>  
         <p class="text-white text-sm">  
-            Laporan Masyarakat  
+              
         </p>  
     </div>  
 
