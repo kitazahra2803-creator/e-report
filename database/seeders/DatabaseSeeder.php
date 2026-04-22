@@ -53,19 +53,5 @@ class DatabaseSeeder extends Seeder
             'password' => bcrypt('admin123'),
             'role' => 'admin',
         ]);
-
-        // ==================== CONTOH WARGA (Opsional) ====================
-        User::create([
-            'username' => 'warga',
-            'name' => 'Warga Sindang',
-            'email' => 'warga@example.com',
-            'phone' => '081234567891',
-            'village' => 'Desa Sindang',
-            'district' => 'Kecamatan Sindang',
-            'province' => 'Jawa Barat',
-            'password' => bcrypt('password'),
-            'role' => 'user',
-            'desa_id' => 1,
-        ]);
     }
 }
