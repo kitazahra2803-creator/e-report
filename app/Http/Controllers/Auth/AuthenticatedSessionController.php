@@ -16,21 +16,32 @@ class AuthenticatedSessionController extends Controller
         return view('auth.login');
     }
 
-    public function store(LoginRequest $request): RedirectResponse
-    {
-        $request->authenticate();
-        $request->session()->regenerate();
+public function store(LoginRequest $request): RedirectResponse
+{
+    $request->authenticate();
+    $request->session()->regenerate();
 
-        $user = Auth::user();
-        
-        if ($user->role === 'admin') {
-            return redirect()->route('admin.dashboard');
-        } elseif ($user->role === 'admin_desa') {
-            return redirect()->route('admin-desa.dashboard');
-        } else {
-            return redirect()->route('dashboard');
-        }
+    $user = Auth::user();
+
+    if ($user->role === 'admin') {
+        return redirect()->route('admin.dashboard');
+    } 
+    elseif ($user->role === 'admin_desa') {
+        return redirect()->route('admin-desa.dashboard');
+    } 
+    elseif ($user->role === 'admin_kecamatan') {
+        return redirect()->route('admin.dashboard'); // atau route khusus kecamatan
     }
+    elseif ($user->role === 'admin_kabupaten') {
+        return redirect()->route('admin-kabupaten.dashboard');
+    }
+
+    elseif ($user->role === 'admin_provinsi') {
+        return redirect()->route('admin-provinsi.dashboard');
+    }
+
+    return redirect()->route('dashboard');
+}
 
     public function destroy(Request $request): RedirectResponse
     {

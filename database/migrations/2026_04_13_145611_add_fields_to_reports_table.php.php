@@ -12,6 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('reports', function (Blueprint $table) {
+            $table->string('desa')->after('judul');
+            $table->string('foto')->nullable();
             //
         });
     }

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detail Laporan - Admin Kecamatan</title>
+    <title>Detail Laporan - Admin Kabupaten</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
@@ -21,7 +21,7 @@
         <div class="flex items-center justify-between">
             <div>
                 <h1 class="text-2xl font-bold text-white">Detail Laporan</h1>
-                <p class="text-white text-sm">Admin Kecamatan</p>
+                <p class="text-white text-sm">Admin Kabupaten</p>
             </div>
             <div class="flex items-center gap-4">
                 <img src="{{ asset('images/logo_e-report.png') }}" class="h-10 bg-white px-2 py-1 rounded shadow">
@@ -63,17 +63,16 @@
                 <div>
                     <b>Kewenangan Saat Ini</b><br>
                     <span class="inline-block px-3 py-1 text-xs rounded-full font-semibold
-                        @if($report->kewenangan == 'Kabupaten') bg-orange-100 text-orange-700
-                        @elseif($report->kewenangan == 'Provinsi') bg-purple-100 text-purple-700
-                        @elseif($report->kewenangan == 'Kecamatan') bg-blue-100 text-blue-700
+                        @if($report->kewenangan == 'Provinsi') bg-purple-100 text-purple-700
+                        @elseif($report->kewenangan == 'Kabupaten') bg-orange-100 text-orange-700
                         @else bg-gray-100 text-gray-600 @endif">
                         {{ ucfirst($report->kewenangan ?? 'Desa') }}
                     </span>
                 </div>
             </div>
 
-            <!-- FORM UPDATE - UNTUK ADMIN KECAMATAN -->
-            @if($report->status != 'ditolak')
+            <!-- FORM UPDATE - UNTUK ADMIN KABUPATEN -->
+            @if($report->status != 'ditolak' && $report->kewenangan == 'Kabupaten')
             <div class="mt-6 pt-4 border-t border-gray-300">
                 <h3 class="font-semibold text-md mb-3">Update Status Laporan</h3>
                 <div class="space-y-3 text-sm">
@@ -86,22 +85,19 @@
                         </select>
                     </div>
 
-                    <!-- TINGKAT KEWENANGAN (DESA, KECAMATAN, KABUPATEN, PROVINSI) -->
+                    <!-- TINGKAT KEWENANGAN (KABUPATEN ATAU PROVINSI) -->
                     <div>
                         <b>Tingkat Kewenangan</b><br>
                         <select id="kewenanganSelect" class="w-full mt-1 bg-white/70 rounded-lg px-3 py-2 border focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <option value="Desa" {{ ($report->kewenangan ?? 'Desa') == 'Desa' ? 'selected' : '' }}>Desa</option>
-                            <option value="Kecamatan" {{ ($report->kewenangan ?? 'Desa') == 'Kecamatan' ? 'selected' : '' }}>Kecamatan</option>
-                            <option value="Kabupaten" {{ ($report->kewenangan ?? 'Desa') == 'Kabupaten' ? 'selected' : '' }}>Kabupaten</option>
-                            <option value="Provinsi" {{ ($report->kewenangan ?? 'Desa') == 'Provinsi' ? 'selected' : '' }}>Provinsi</option>
+                            <option value="Kabupaten" {{ ($report->kewenangan ?? 'Kabupaten') == 'Kabupaten' ? 'selected' : '' }}>Kabupaten</option>
+                            <option value="Provinsi" {{ ($report->kewenangan ?? 'Kabupaten') == 'Provinsi' ? 'selected' : '' }}>Provinsi</option>
                         </select>
-    
                     </div>
 
                     <!-- Catatan -->
                     <div>
                         <b>Keterangan/Catatan</b><br>
-                        <textarea id="catatanKecamatan" rows="3" class="w-full mt-1 bg-white/70 rounded-lg px-3 py-2 border focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Tambahkan catatan/keterangan...">{{ $report->catatan_kecamatan ?? '' }}</textarea>
+                        <textarea id="catatanKabupaten" rows="3" class="w-full mt-1 bg-white/70 rounded-lg px-3 py-2 border focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Tambahkan catatan/keterangan...">{{ $report->catatan_kabupaten ?? '' }}</textarea>
                     </div>
 
                     <div class="flex gap-3 pt-3">
@@ -110,86 +106,24 @@
                     </div>
                 </div>
             </div>
-            @else
+            @elseif($report->kewenangan == 'Provinsi')
+            <div class="mt-6 pt-4 border-t border-gray-300 text-center">
+                <p class="text-purple-600 font-semibold">📌 Laporan ini sudah menjadi kewenangan Provinsi</p>
+                <p class="text-sm text-gray-500 mt-1">Anda hanya bisa melihat detail laporan, tidak dapat mengubah status</p>
+            </div>
+            @elseif($report->status == 'ditolak')
             <div class="mt-6 pt-4 border-t border-gray-300 text-center">
                 <p class="text-red-600 font-semibold">❌ Laporan ini telah ditolak</p>
-                <p class="text-sm text-gray-500 mt-1">Tidak dapat mengubah status laporan yang sudah ditolak</p>
             </div>
             @endif
 
-            <!-- Tombol Kembali -->
+            <!-- Tombol Kembali ke Dashboard Kabupaten -->
             <div class="mt-6">
-                <a href="{{ route('admin.dashboard') }}" class="block text-center px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded-lg text-sm transition">
+                <a href="{{ route('admin-kabupaten.dashboard') }}" class="block text-center px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded-lg text-sm transition">
                     Kembali ke Dashboard
                 </a>
             </div>
 
-        </div>
-    </div>
-
-    <!-- MODAL KONFIRMASI UPDATE -->
-    <div id="modalUpdate" class="fixed inset-0 z-50 hidden overflow-y-auto">
-        <div class="fixed inset-0 bg-black/50" onclick="closeModalUpdate()"></div>
-        <div class="relative min-h-screen flex items-center justify-center p-4">
-            <div class="relative bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 overflow-hidden">
-                <div class="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4 text-center">
-                    <div class="flex justify-center mb-2">
-                        <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center">
-                            <svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                            </svg>
-                        </div>
-                    </div>
-                    <h3 class="text-xl font-bold text-white">E-Report.</h3>
-                    <p class="text-blue-100 text-sm">Kec. Sindang</p>
-                </div>
-                <div class="px-6 py-6">
-                    <div class="text-center mb-4">
-                        <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                            <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                            </svg>
-                        </div>
-                        <h4 class="text-lg font-semibold text-gray-800">Perhatian!</h4>
-                        <p class="text-sm text-gray-600 mt-2">Status dan kewenangan akan berubah.</p>
-                    </div>
-                    <div class="flex gap-3 mt-6">
-                        <button onclick="closeModalUpdate()" class="flex-1 px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded-lg transition">Cancel</button>
-                        <button id="confirmUpdate" class="flex-1 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition">Yes</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL KONFIRMASI TOLAK -->
-    <div id="modalTolak" class="fixed inset-0 z-50 hidden overflow-y-auto">
-        <div class="fixed inset-0 bg-black/50" onclick="closeModalTolak()"></div>
-        <div class="relative min-h-screen flex items-center justify-center p-4">
-            <div class="relative bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 overflow-hidden">
-                <div class="bg-gradient-to-r from-red-500 to-red-600 px-6 py-4 text-center">
-                    <div class="flex justify-center mb-2">
-                        <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center">
-                            <svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                            </svg>
-                        </div>
-                    </div>
-                    <h3 class="text-xl font-bold text-white">Tolak Laporan?</h3>
-                </div>
-                <div class="px-6 py-6">
-                    <p class="text-center text-gray-700 mb-4">Apakah Anda yakin ingin menolak laporan ini?</p>
-                    <div class="mb-4">
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Alasan Penolakan</label>
-                        <textarea id="alasanTolak" rows="3" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Masukkan alasan penolakan..."></textarea>
-                        <p class="text-xs text-gray-500 mt-1">Alasan akan dikirimkan ke pelapor</p>
-                    </div>
-                    <div class="flex gap-3">
-                        <button onclick="closeModalTolak()" class="flex-1 px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded-lg transition">Batal</button>
-                        <button id="confirmTolak" class="flex-1 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition">Tolak</button>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 
@@ -211,15 +145,16 @@
         function updateStatus(status, kewenangan = null, catatan = null, alasanTolak = null) {
             let formData = new FormData();
             formData.append('status', status);
-            if (kewenangan) formData.append('kewenangan', kewenangan);
-            if (catatan) formData.append('catatan_kecamatan', catatan);
-            if (alasanTolak) formData.append('alasan_tolak_kecamatan', alasanTolak);
+            formData.append('_method', 'PATCH');
             
-            fetch(`/admin/reports/{{ $report->id }}/status`, {
+            if (kewenangan) formData.append('kewenangan', kewenangan);
+            if (catatan) formData.append('catatan_kabupaten', catatan);
+            if (alasanTolak) formData.append('alasan_tolak_kabupaten', alasanTolak);
+            
+            fetch(`/admin-kabupaten/reports/{{ $report->id }}/status`, {
                 method: 'POST',
                 headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'X-HTTP-Method-Override': 'PATCH'
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
                 },
                 body: formData
             })
@@ -243,7 +178,7 @@
         let confirmTolak = document.getElementById('confirmTolak');
         let statusSelect = document.getElementById('statusSelect');
         let kewenanganSelect = document.getElementById('kewenanganSelect');
-        let catatanKecamatan = document.getElementById('catatanKecamatan');
+        let catatanKabupaten = document.getElementById('catatanKabupaten');
         
         if (btnUpdate) {
             btnUpdate.addEventListener('click', () => openModalUpdate());
@@ -251,8 +186,8 @@
         if (confirmUpdate) {
             confirmUpdate.addEventListener('click', () => {
                 let status = statusSelect ? statusSelect.value : 'menunggu';
-                let kewenangan = kewenanganSelect ? kewenanganSelect.value : 'Kecamatan';
-                let catatan = catatanKecamatan ? catatanKecamatan.value : null;
+                let kewenangan = kewenanganSelect ? kewenanganSelect.value : 'Kabupaten';
+                let catatan = catatanKabupaten ? catatanKabupaten.value : null;
                 closeModalUpdate();
                 updateStatus(status, kewenangan, catatan);
             });
@@ -264,7 +199,7 @@
             confirmTolak.addEventListener('click', () => {
                 let alasan = document.getElementById('alasanTolak').value;
                 if (!alasan) { alert('Harap masukkan alasan penolakan!'); return; }
-                let kewenangan = kewenanganSelect ? kewenanganSelect.value : 'Kecamatan';
+                let kewenangan = kewenanganSelect ? kewenanganSelect.value : 'Kabupaten';
                 updateStatus('ditolak', kewenangan, null, alasan);
             });
         }

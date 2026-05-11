@@ -53,5 +53,31 @@ class DatabaseSeeder extends Seeder
             'password' => bcrypt('admin123'),
             'role' => 'admin',
         ]);
+    
+
+    // ==================== ADMIN KABUPATEN (TAMBAHKAN) ====================
+        User::create([
+            'username' => 'admin_kab',
+            'name' => 'Admin Kabupaten',
+            'email' => 'admin@kabupaten.com',
+            'phone' => '081234567891',
+            'district' => 'Kabupaten Indramayu',
+            'kabupaten' => 'Indramayu',
+            'provinsi' => 'Jawa Barat',
+            'password' => bcrypt('12345678'),
+            'role' => 'admin_kabupaten',
+        ]);
+
+        // ==================== ADMIN PROVINSI ====================
+        User::create([
+            'username' => 'admin_provinsi',
+            'name' => 'Admin Provinsi Jawa Barat',
+            'email' => 'adminprovinsi@ereport.com',
+            'phone' => '081234567890',
+            'provinsi' => 'Jawa Barat',
+            'password' => bcrypt('password'),
+            'role' => 'admin_provinsi',
+        ]);
+
     }
 }

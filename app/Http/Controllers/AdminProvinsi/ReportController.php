@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\AdminProvinsi;
 
 use App\Http\Controllers\Controller;
 use App\Models\Report;
@@ -8,29 +8,25 @@ use Illuminate\Http\Request;
 
 class ReportController extends Controller
 {
-    // TAMBAHKAN METHOD SHOW INI
     public function show($id)
     {
-        $report = Report::findOrFail($id);
-        
-        return view('admin.reports.show', compact('report'));
+        $report = Report::with('user')->findOrFail($id);
+        return view('admin-provinsi.reports.show', compact('report'));
     }
     
-    // Method updateStatus yang sudah ada
     public function updateStatus(Request $request, $id)
     {
         try {
             $report = Report::findOrFail($id);
             
             $report->status = $request->status;
-            $report->kewenangan = $request->kewenangan;
             
-            if ($request->catatan_kecamatan) {
-                $report->catatan_kecamatan = $request->catatan_kecamatan;
+            if ($request->has('catatan_provinsi')) {
+                $report->catatan_provinsi = $request->catatan_provinsi;
             }
             
-            if ($request->alasan_tolak_kecamatan) {
-                $report->alasan_tolak_kecamatan = $request->alasan_tolak_kecamatan;
+            if ($request->status == 'ditolak' && $request->has('alasan_tolak_provinsi')) {
+                $report->alasan_tolak_provinsi = $request->alasan_tolak_provinsi;
             }
             
             $report->save();
