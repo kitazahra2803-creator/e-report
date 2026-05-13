@@ -127,6 +127,139 @@
         </div>
     </div>
 
+    <!-- MODAL KONFIRMASI UPDATE -->
+<div id="modalUpdate" class="fixed inset-0 z-50 hidden overflow-y-auto">
+    <div class="fixed inset-0 bg-black/50" onclick="closeModalUpdate()"></div>
+
+    <div class="relative min-h-screen flex items-center justify-center p-4">
+        <div class="relative bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 overflow-hidden">
+
+            <div class="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4 text-center">
+                <div class="flex justify-center mb-2">
+                    <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center">
+                        <svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667
+                                1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34
+                                16c-.77 1.333.192 3 1.732 3z">
+                            </path>
+                        </svg>
+                    </div>
+                </div>
+
+                <h3 class="text-xl font-bold text-white">
+                    E-Report
+                </h3>
+
+                <p class="text-blue-100 text-sm">
+                    Admin Kabupaten
+                </p>
+            </div>
+
+            <div class="px-6 py-6">
+
+                <div class="text-center mb-4">
+                    <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667
+                                1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34
+                                16c-.77 1.333.192 3 1.732 3z">
+                            </path>
+                        </svg>
+                    </div>
+
+                    <h4 class="text-lg font-semibold text-gray-800">
+                        Perhatian!
+                    </h4>
+
+                    <p class="text-sm text-gray-600 mt-2">
+                        Status laporan akan diperbarui dan pelapor akan mendapat notifikasi.
+                    </p>
+                </div>
+
+                <div class="flex gap-3 mt-6">
+                    <button onclick="closeModalUpdate()"
+                        class="flex-1 px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded-lg transition">
+                        Cancel
+                    </button>
+
+                    <button id="confirmUpdate"
+                        class="flex-1 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition">
+                        Yes
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL KONFIRMASI TOLAK -->
+<div id="modalTolak" class="fixed inset-0 z-50 hidden overflow-y-auto">
+
+    <div class="fixed inset-0 bg-black/50" onclick="closeModalTolak()"></div>
+
+    <div class="relative min-h-screen flex items-center justify-center p-4">
+        <div class="relative bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 overflow-hidden">
+
+            <div class="bg-gradient-to-r from-red-500 to-red-600 px-6 py-4 text-center">
+
+                <div class="flex justify-center mb-2">
+                    <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center">
+                        <svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667
+                                1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34
+                                16c-.77 1.333.192 3 1.732 3z">
+                            </path>
+                        </svg>
+                    </div>
+                </div>
+
+                <h3 class="text-xl font-bold text-white">
+                    Tolak Laporan?
+                </h3>
+            </div>
+
+            <div class="px-6 py-6">
+
+                <p class="text-center text-gray-700 mb-4">
+                    Apakah Anda yakin ingin menolak laporan ini?
+                </p>
+
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        Alasan Penolakan
+                    </label>
+
+                    <textarea id="alasanTolak"
+                        rows="3"
+                        class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                        placeholder="Masukkan alasan penolakan..."></textarea>
+
+                    <p class="text-xs text-gray-500 mt-1">
+                        Alasan akan dikirimkan ke pelapor
+                    </p>
+                </div>
+
+                <div class="flex gap-3">
+                    <button onclick="closeModalTolak()"
+                        class="flex-1 px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded-lg transition">
+                        Batal
+                    </button>
+
+                    <button id="confirmTolak"
+                        class="flex-1 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition">
+                        Tolak
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
     <script>
         function openModalUpdate() {
             document.getElementById('modalUpdate').classList.remove('hidden');
