@@ -19,7 +19,7 @@ class ReportController extends Controller
         try {
             $report = Report::findOrFail($id);
             
-            $report->status = $request->status;
+            $report->status_provinsi = $request->status;
             
             if ($request->has('catatan_provinsi')) {
                 $report->catatan_provinsi = $request->catatan_provinsi;

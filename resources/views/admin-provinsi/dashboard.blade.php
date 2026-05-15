@@ -118,9 +118,9 @@
                         <td class="p-3">{{ $report->desa ?? '-' }}</td>
                         <td class="p-3">
                             <span class="px-3 py-1 rounded-full text-xs
-                                @if($report->status_kabupaten == 'selesai') bg-green-100 text-green-700
-                                @elseif($report->status_kabupaten == 'diproses') bg-blue-100 text-blue-700
-                                @elseif($report->status_kabupaten == 'ditolak') bg-red-100 text-red-700
+                                @if($report->status_provinsi == 'selesai') bg-green-100 text-green-700
+                                @elseif($report->status_provinsi == 'diproses') bg-blue-100 text-blue-700
+                                @elseif($report->status_provinsi == 'ditolak') bg-red-100 text-red-700
                                 @else bg-yellow-100 text-yellow-700 @endif">
                                 {{ $report->status_provinsi ?? 'menunggu' }}
                             </span>

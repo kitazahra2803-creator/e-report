@@ -18,9 +18,9 @@ class DashboardController extends Controller
         
         // Statistik untuk dashboard
         $totalLaporan = Report::where('kewenangan', 'Provinsi')->count();
-        $menunggu = Report::where('kewenangan', 'Provinsi')->where('status', 'menunggu')->count();
-        $diproses = Report::where('kewenangan', 'Provinsi')->where('status', 'diproses')->count();
-        $selesai = Report::where('kewenangan', 'Provinsi')->where('status', 'selesai')->count();
+        $menunggu = Report::where('kewenangan', 'Provinsi')->where('status_provinsi', 'menunggu')->count();
+        $diproses = Report::where('kewenangan', 'Provinsi')->where('status_provinsi', 'diproses')->count();
+        $selesai = Report::where('kewenangan', 'Provinsi')->where('status_provinsi', 'selesai')->count();
         
         return view('admin-provinsi.dashboard', [
             'reports' => $reports,
