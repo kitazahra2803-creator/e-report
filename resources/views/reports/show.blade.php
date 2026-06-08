@@ -34,9 +34,35 @@
 
         <div class="space-y-3 text-sm">
 
+            <!-- JUDUL -->
             <div><b>Judul:</b><br>{{ $report->judul }}</div>
+
+            <!-- LOKASI -->
             <div><b>Lokasi:</b><br>{{ $report->lokasi }}</div>
-            <div><b>Desa Tujuan:</b><br>{{ $report->desa }}</div>
+
+            <!-- DESA TUJUAN -->
+            <div>
+                <b>Desa Tujuan:</b><br>
+                {{ $report->desaRelasi ? $report->desaRelasi->nama_desa : '-' }}
+            </div>
+
+            <!-- KECAMATAN -->
+            <div>
+                <b>Kecamatan:</b><br>
+                {{ $report->kecamatan ?: '-' }}
+            </div>
+
+            <!-- KABUPATEN -->
+            <div>
+                <b>Kabupaten:</b><br>
+                {{ $report->kabupaten ?: '-' }}
+            </div>
+
+            <!-- PROVINSI -->
+            <div>
+                <b>Provinsi:</b><br>
+                {{ $report->provinsi ?: '-' }}
+            </div>
 
             <!-- STATUS -->
             <div>
@@ -53,17 +79,31 @@
             <!-- KEWENANGAN -->
             <div>
                 <b>Kewenangan:</b><br>
-                @if(($report->kewenangan ?? 'Desa') == 'Kecamatan')
+                @if($report->kewenangan == 'Kecamatan')
                     <span class="px-2 py-1 text-xs rounded-full bg-purple-100 text-purple-700 font-semibold">🏛️ Kewenangan Kecamatan</span>
+                @elseif($report->kewenangan == 'Kabupaten')
+                    <span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-700 font-semibold">🏢 Kewenangan Kabupaten</span>
+                @elseif($report->kewenangan == 'Provinsi')
+                    <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-700 font-semibold">🏛️ Kewenangan Provinsi</span>
                 @else
-                    <span class="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-600">Kewenangan Desa</span>
+                    <span class="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-600">🏘️ Kewenangan Desa</span>
                 @endif
             </div>
 
-            <!-- ALASAN DITOLAK -->
+            <!-- ALASAN DITOLAK (LENGKAP DARI SEMUA LEVEL) -->
             @if($report->status == 'ditolak')
             <div>
                 <b>Alasan Ditolak:</b><br>
+                @if($report->alasan_tolak_provinsi)
+                    <p class="text-red-600 bg-red-50 rounded-lg px-3 py-2 mt-1">
+                        <strong>Ditolak oleh Provinsi:</strong> {{ $report->alasan_tolak_provinsi }}
+                    </p>
+                @endif
+                @if($report->alasan_tolak_kabupaten)
+                    <p class="text-red-600 bg-red-50 rounded-lg px-3 py-2 mt-1">
+                        <strong>Ditolak oleh Kabupaten:</strong> {{ $report->alasan_tolak_kabupaten }}
+                    </p>
+                @endif
                 @if($report->alasan_tolak_kecamatan)
                     <p class="text-red-600 bg-red-50 rounded-lg px-3 py-2 mt-1">
                         <strong>Ditolak oleh Kecamatan:</strong> {{ $report->alasan_tolak_kecamatan }}
@@ -93,6 +133,22 @@
             </div>
             @endif
 
+            <!-- CATATAN DARI ADMIN KABUPATEN -->
+            @if($report->catatan_kabupaten)
+            <div>
+                <b>Catatan dari Admin Kabupaten:</b><br>
+                <p class="bg-blue-50 rounded-lg px-3 py-2 mt-1">{{ $report->catatan_kabupaten }}</p>
+            </div>
+            @endif
+
+            <!-- CATATAN DARI ADMIN PROVINSI -->
+            @if($report->catatan_provinsi)
+            <div>
+                <b>Catatan dari Admin Provinsi:</b><br>
+                <p class="bg-green-50 rounded-lg px-3 py-2 mt-1">{{ $report->catatan_provinsi }}</p>
+            </div>
+            @endif
+
             <!-- TANGGAL -->
             <div><b>Tanggal:</b><br>{{ $report->created_at->format('d M Y H:i') }}</div>
 
@@ -100,18 +156,23 @@
             <div><b>Deskripsi:</b><br>{{ $report->deskripsi }}</div>
 
             <!-- FOTO KERUSAKAN -->
-            @if($report->foto)
+            @if($report->foto && file_exists(public_path($report->foto)))
             <div>
                 <b>Foto Kerusakan:</b><br>
-                <img src="{{ asset('storage/' . $report->foto) }}" class="mt-2 rounded-lg max-w-full max-h-64 object-cover">
+                <img src="{{ asset($report->foto) }}" class="mt-2 rounded-lg max-w-full max-h-64 object-cover">
+            </div>
+            @elseif($report->foto)
+            <div>
+                <b>Foto Kerusakan:</b><br>
+                <img src="{{ asset($report->foto) }}" class="mt-2 rounded-lg max-w-full max-h-64 object-cover">
             </div>
             @endif
 
             <!-- FOTO BUKTI PERBAIKAN -->
-            @if($report->foto_perbaikan)
+            @if($report->foto_perbaikan && file_exists(public_path($report->foto_perbaikan)))
             <div>
                 <b>Foto Bukti Perbaikan:</b><br>
-                <img src="{{ asset('storage/' . $report->foto_perbaikan) }}" class="mt-2 rounded-lg max-w-full max-h-64 object-cover">
+                <img src="{{ asset($report->foto_perbaikan) }}" class="mt-2 rounded-lg max-w-full max-h-64 object-cover">
                 <p class="text-xs text-green-600 mt-1">✅ Fasilitas telah diperbaiki</p>
             </div>
             @endif
@@ -122,7 +183,8 @@
         <div class="mt-6 flex justify-between items-center">
             <a href="{{ route('dashboard') }}" class="px-4 py-2 bg-gray-300 rounded-lg text-sm">Kembali</a>
 
-            @if($report->status != 'ditolak' && ($report->kewenangan ?? 'Desa') != 'Kecamatan')
+            <!-- EDIT HANYA MUNCUL JIKA STATUS MENUNGGU DAN KEWENANGAN DESA -->
+            @if($report->status == 'menunggu' && $report->kewenangan == 'Desa')
                 <a href="{{ route('reports.edit', $report->id) }}" class="px-4 py-2 bg-yellow-400 rounded-lg text-sm">Edit</a>
             @endif
         </div>

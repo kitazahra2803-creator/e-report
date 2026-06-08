@@ -15,24 +15,19 @@
     <!-- HEADER -->
     <div class="bg-[#7fc8c6] px-8 py-6 shadow">
         <div class="flex items-center justify-between">
-
-            <!-- KIRI -->
             <div>
-                <h1 class="text-2xl font-bold text-white">
-                    Dashboard Masyarakat
-                </h1>
-                <p class="text-white text-sm">
-                    {{ Auth::user()->name }} - Sindang
-                </p>
+                <h1 class="text-2xl font-bold text-white">Dashboard Masyarakat</h1>
+                <p class="text-white text-sm">{{ Auth::user()->name }} - Sindang</p>
             </div>
-
-            <!-- KANAN -->
             <div class="flex items-center gap-4">
-
-                <!-- DROPDOWN -->
                 <div class="relative">
-                    <button id="dropdownBtn" class="flex items-center text-white text-sm font-medium focus:outline-none">
+                    <button id="dropdownBtn" class="flex items-center text-white text-sm font-medium focus:outline-none relative">
                         {{ Auth::user()->name }}
+                        @if(isset($unreadCount) && $unreadCount > 0)
+                            <span class="absolute -top-2 -right-3 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                                {{ $unreadCount }}
+                            </span>
+                        @endif
                         <svg class="ms-2 h-4 w-4 fill-current" viewBox="0 0 20 20">
                             <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/>
                         </svg>
@@ -45,12 +40,8 @@
                         </form>
                     </div>
                 </div>
-
-                <!-- LOGO -->
-                <img src="{{ asset('images/logo_e-report.png') }}" 
-                     class="h-12 bg-white px-2 py-1 rounded shadow">
+                <img src="{{ asset('images/logo_e-report.png') }}" class="h-12 bg-white px-2 py-1 rounded shadow">
             </div>
-
         </div>
     </div>
 
@@ -71,7 +62,7 @@
                     <p class="text-sm text-gray-500">Menunggu</p>
                 </div>
                 <div class="rounded-xl shadow p-4 text-center bg-white">
-                    <div class="text-red-500 text-3xl mb-1">❗</div>
+                    <div class="text-blue-500 text-3xl mb-1">🔄</div>
                     <p class="text-2xl font-bold">{{ $processedReports ?? 0 }}</p>
                     <p class="text-sm text-gray-500">Diproses</p>
                 </div>
@@ -84,8 +75,7 @@
 
             <!-- BUTTON -->
             <div class="mt-6">
-                <a href="{{ route('reports.create') }}" 
-                   class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-full shadow transition">
+                <a href="{{ route('reports.create') }}" class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-full shadow transition">
                     <span class="text-lg font-bold">+</span> Buat Laporan Baru
                 </a>
             </div>
@@ -101,12 +91,13 @@
                     <div class="overflow-x-auto">
                         <table class="min-w-full border-collapse">
                             <thead>
-                                <tr class="border-b border-gray-200">
+                                <tr class="border-b border-gray-200 bg-gray-50">
                                     <th class="text-left py-3 px-3 text-sm font-semibold text-gray-700">Tanggal</th>
                                     <th class="text-left py-3 px-3 text-sm font-semibold text-gray-700">Judul Laporan</th>
                                     <th class="text-left py-3 px-3 text-sm font-semibold text-gray-700">Lokasi</th>
                                     <th class="text-left py-3 px-3 text-sm font-semibold text-gray-700">Desa Tujuan</th>
                                     <th class="text-left py-3 px-3 text-sm font-semibold text-gray-700">Status</th>
+                                    <th class="text-left py-3 px-3 text-sm font-semibold text-gray-700">Notif</th>
                                     <th class="text-left py-3 px-3 text-sm font-semibold text-gray-700">Alasan Ditolak</th>
                                     <th class="text-left py-3 px-3 text-sm font-semibold text-gray-700">Aksi</th>
                                 </tr>
@@ -117,7 +108,15 @@
                                     <td class="py-3 px-3 text-sm text-gray-700">{{ $report->created_at->format('d/m/Y') }}</td>
                                     <td class="py-3 px-3 text-sm font-medium text-gray-800">{{ $report->judul }}</td>
                                     <td class="py-3 px-3 text-sm text-gray-700">{{ $report->lokasi }}</td>
-                                    <td class="py-3 px-3 text-sm text-gray-700">{{ $report->desa }}</td>
+                                    <td class="py-3 px-3 text-sm text-gray-700">
+                                        @if($report->desaRelasi)
+                                            {{ $report->desaRelasi->nama_desa }}
+                                        @elseif($report->desa)
+                                            {{ $report->desa }}
+                                        @else
+                                            -
+                                        @endif
+                                    </td>
                                     <td class="py-3 px-3">
                                         <span class="px-3 py-1 text-xs rounded-full font-semibold
                                             @if($report->status == 'selesai') bg-green-100 text-green-700
@@ -127,10 +126,22 @@
                                             {{ ucfirst($report->status) }}
                                         </span>
                                     </td>
+                                    <td class="py-3 px-3">
+                                        @if($report->is_read == false && $report->status != 'menunggu')
+                                            <span class="inline-block h-3 w-3 bg-green-500 rounded-full"></span>
+                                            <span class="text-xs text-green-600 ml-1">Baru</span>
+                                        @else
+                                            <span class="inline-block h-3 w-3 bg-gray-300 rounded-full"></span>
+                                        @endif
+                                    </td>
                                     <td class="py-3 px-3 text-sm text-red-600 max-w-[200px] truncate">
                                         @if($report->status == 'ditolak')
-                                            @if($report->alasan_tolak_kecamatan)
-                                                <span title="{{ $report->alasan_tolak_kecamatan }}">Kec: {{ Str::limit($report->alasan_tolak_kecamatan, 30) }}</span>
+                                            @if($report->alasan_tolak_provinsi)
+                                                <span title="{{ $report->alasan_tolak_provinsi }}">Provinsi: {{ Str::limit($report->alasan_tolak_provinsi, 30) }}</span>
+                                            @elseif($report->alasan_tolak_kabupaten)
+                                                <span title="{{ $report->alasan_tolak_kabupaten }}">Kabupaten: {{ Str::limit($report->alasan_tolak_kabupaten, 30) }}</span>
+                                            @elseif($report->alasan_tolak_kecamatan)
+                                                <span title="{{ $report->alasan_tolak_kecamatan }}">Kecamatan: {{ Str::limit($report->alasan_tolak_kecamatan, 30) }}</span>
                                             @elseif($report->alasan_tolak)
                                                 <span title="{{ $report->alasan_tolak }}">Desa: {{ Str::limit($report->alasan_tolak, 30) }}</span>
                                             @else

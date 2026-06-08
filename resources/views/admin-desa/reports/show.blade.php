@@ -21,7 +21,7 @@
         <div class="flex items-center justify-between">
             <div>
                 <h1 class="text-2xl font-bold text-white">Detail Laporan</h1>
-                <p class="text-white text-sm">Admin {{ $report->desa->nama_desa ?? 'Desa' }}</p>
+                <p class="text-white text-sm">Admin {{ $report->desaRelasi ? $report->desaRelasi->nama_desa : 'Desa' }}</p>
             </div>
             <div class="flex items-center gap-4">
                 <img src="{{ asset('images/logo_e-report.png') }}" class="h-10 bg-white px-2 py-1 rounded shadow">
@@ -39,14 +39,29 @@
                 <div><b>Lokasi</b><br><p class="bg-white/50 rounded-lg px-3 py-2 mt-1">{{ $report->lokasi }}</p></div>
                 <div><b>Tanggal Laporan</b><br><p class="bg-white/50 rounded-lg px-3 py-2 mt-1">{{ $report->created_at->format('d M Y H:i') }}</p></div>
                 <div><b>Deskripsi Kerusakan</b><br><p class="bg-white/50 rounded-lg px-3 py-2 mt-1">{{ $report->deskripsi }}</p></div>
-                <div><b>Foto Kerusakan</b><br>
-                    @if($report->foto)
-                        <img src="{{ asset('storage/' . $report->foto) }}" class="mt-2 rounded-lg max-w-full max-h-64 object-cover">
+
+                <!-- FOTO KERUSAKAN -->
+                <div>
+                    <b>Foto Kerusakan</b><br>
+                    @if($report->foto && file_exists(public_path($report->foto)))
+                        <img src="{{ asset($report->foto) }}" class="mt-2 rounded-lg max-w-full max-h-64 object-cover">
+                        <a href="{{ asset($report->foto) }}" target="_blank" class="text-blue-500 text-xs mt-1 inline-block">Lihat foto asli</a>
+                    @elseif($report->foto)
+                        <img src="{{ asset($report->foto) }}" class="mt-2 rounded-lg max-w-full max-h-64 object-cover">
                     @else
                         <p class="text-gray-500 italic mt-1">Tidak ada foto</p>
                     @endif
                 </div>
-                
+
+                <!-- FOTO BUKTI PERBAIKAN YANG SUDAH ADA -->
+                @if($report->foto_perbaikan && file_exists(public_path($report->foto_perbaikan)))
+                <div>
+                    <b>Foto Bukti Perbaikan</b><br>
+                    <img src="{{ asset($report->foto_perbaikan) }}" class="mt-2 rounded-lg max-w-full max-h-64 object-cover">
+                    <p class="text-xs text-green-600 mt-1">✅ Fasilitas telah diperbaiki</p>
+                </div>
+                @endif
+
                 <div>
                     <b>Status Saat Ini</b><br>
                     <span class="inline-block px-3 py-1 text-xs rounded-full font-semibold
@@ -60,10 +75,10 @@
 
                 <div>
                     <b>Kewenangan</b><br>
-                    @if(($report->kewenangan ?? 'Desa') == 'Kecamatan')
+                    @if($report->kewenangan == 'Kecamatan')
                         <span class="px-2 py-1 text-xs rounded-full bg-purple-100 text-purple-700 font-semibold">🏛️ Kewenangan Kecamatan</span>
                     @else
-                        <span class="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-600">Kewenangan Desa</span>
+                        <span class="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-600">🏘️ Kewenangan Desa</span>
                     @endif
                 </div>
 
@@ -82,62 +97,88 @@
                     @endif
                 </div>
                 @endif
-                
-                @if($report->foto_perbaikan)
+
+                @if($report->catatan)
                 <div>
-                    <b>Foto Bukti Perbaikan:</b><br>
-                    <img src="{{ asset('storage/' . $report->foto_perbaikan) }}" class="mt-2 rounded-lg max-w-full max-h-64 object-cover">
-                    <p class="text-xs text-green-600 mt-1">✅ Fasilitas telah diperbaiki</p>
+                    <b>Catatan:</b><br>
+                    <p class="bg-blue-50 rounded-lg px-3 py-2 mt-1">{{ $report->catatan }}</p>
                 </div>
                 @endif
             </div>
 
-            <!-- FORM UPDATE - HANYA TAMPIL JIKA KEWENANGAN DESA DAN STATUS TIDAK DITOLAK -->
-            @if(($report->kewenangan ?? 'Desa') == 'Desa' && $report->status != 'ditolak')
+            <!-- FORM UPDATE - TAMPIL JIKA KEWENANGAN DESA, STATUS BUKAN DITOLAK, DAN STATUS BUKAN SELESAI -->
+            @if($report->kewenangan == 'Desa' && $report->status != 'ditolak' && $report->status != 'selesai')
             <div class="mt-6 pt-4 border-t border-gray-300">
                 <h3 class="font-semibold text-md mb-3">Update Status Laporan</h3>
-                <div class="space-y-3 text-sm">
-                    <div>
-                        <b>Status</b><br>
-                        <select id="statusSelect" class="w-full mt-1 bg-white/70 rounded-lg px-3 py-2 border focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <option value="menunggu" {{ $report->status == 'menunggu' ? 'selected' : '' }}>Menunggu</option>
-                            <option value="diproses" {{ $report->status == 'diproses' ? 'selected' : '' }}>Diproses</option>
-                            <option value="selesai" {{ $report->status == 'selesai' ? 'selected' : '' }}>Selesai</option>
-                        </select>
-                    </div>
-                    
-                    <!-- Upload Foto Perbaikan (hanya muncul saat status Selesai) -->
-                    <div id="uploadFotoPerbaikan" class="hidden">
-                        <b>Foto Bukti Perbaikan</b><br>
-                        <label for="fotoPerbaikan" class="mt-2 border-2 border-dashed rounded-lg p-4 text-center text-gray-500 block cursor-pointer hover:bg-gray-100">
-                            Klik untuk upload foto bukti perbaikan
-                            <p class="text-xs mt-1 text-gray-400">PNG, JPG, JPEG (Opsional)</p>
-                        </label>
-                        <input id="fotoPerbaikan" type="file" name="foto_perbaikan" class="hidden" accept="image/*">
-                        <div id="previewFoto" class="mt-2 hidden">
-                            <img id="previewImg" class="mt-2 rounded-lg max-w-full max-h-32 object-cover">
+
+                <form id="updateForm" action="{{ route('admin-desa.reports.updateStatus', $report->id) }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    @method('PATCH')
+
+                    <div class="space-y-3 text-sm">
+                        <div>
+                            <b>Status</b><br>
+                            <select name="status" id="statusSelect" class="w-full mt-1 bg-white/70 rounded-lg px-3 py-2 border focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="menunggu" {{ $report->status == 'menunggu' ? 'selected' : '' }}>Menunggu</option>
+                                <option value="diproses" {{ $report->status == 'diproses' ? 'selected' : '' }}>Diproses</option>
+                                <option value="selesai" {{ $report->status == 'selesai' ? 'selected' : '' }}>Selesai</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <b>Tingkat Kewenangan</b><br>
+                            <select name="kewenangan" class="w-full mt-1 bg-white/70 rounded-lg px-3 py-2 border focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="Desa" {{ $report->kewenangan == 'Desa' ? 'selected' : '' }}>Desa</option>
+                                <option value="Kecamatan" {{ $report->kewenangan == 'Kecamatan' ? 'selected' : '' }}>Kecamatan</option>
+                            </select>
+                            <p class="text-xs text-gray-500 mt-1">Jika pilih Kecamatan, laporan akan naik ke admin kecamatan</p>
+                        </div>
+
+                        <!-- Upload Foto Bukti Perbaikan -->
+                        <div id="uploadFotoPerbaikan" class="{{ $report->status == 'selesai' ? '' : 'hidden' }}">
+                            <b>Foto Bukti Perbaikan</b><br>
+                            <label for="fotoPerbaikanInput" class="mt-2 border-2 border-dashed rounded-lg p-6 text-center text-gray-500 block cursor-pointer hover:bg-gray-100 transition">
+                                Klik untuk upload foto bukti perbaikan
+                                <p class="text-xs mt-1 text-gray-400">PNG, JPG, JPEG</p>
+                            </label>
+                            <input id="fotoPerbaikanInput" type="file" name="foto_perbaikan" class="hidden" accept="image/*">
+                            <div id="previewFotoPerbaikan" class="mt-2 {{ $report->foto_perbaikan ? '' : 'hidden' }}">
+                                <img id="previewPerbaikanImg" src="{{ $report->foto_perbaikan ? asset($report->foto_perbaikan) : '' }}" class="rounded-lg w-full max-h-32 object-cover">
+                                <p class="text-xs text-green-500 mt-1">✅ Foto baru akan menggantikan yang lama</p>
+                            </div>
+                            @if($report->foto_perbaikan && file_exists(public_path($report->foto_perbaikan)))
+                                <div class="mt-2 p-2 bg-green-50 rounded-lg">
+                                    <p class="text-xs text-green-600">📷 Foto bukti perbaikan saat ini:</p>
+                                    <img src="{{ asset($report->foto_perbaikan) }}" class="mt-1 rounded-lg max-h-32 object-cover">
+                                </div>
+                            @endif
+                        </div>
+
+                        <div>
+                            <b>Catatan (Opsional)</b><br>
+                            <textarea name="catatan" rows="2" class="w-full mt-1 bg-white/70 rounded-lg px-3 py-2 border">{{ $report->catatan }}</textarea>
+                        </div>
+
+                        <div class="flex gap-3 pt-3">
+                            <button type="button" id="btnUpdate" class="flex-1 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition">
+                                Update Status
+                            </button>
+                            <button type="button" id="btnTolak" class="flex-1 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition">
+                                Tolak Laporan
+                            </button>
                         </div>
                     </div>
-
-                    <div>
-                        <b>Tingkat Kewenangan</b><br>
-                        <select id="kewenanganSelect" class="w-full mt-1 bg-white/70 rounded-lg px-3 py-2 border focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <option value="Desa" {{ $report->kewenangan == 'Desa' ? 'selected' : '' }}>Desa</option>
-                            <option value="Kecamatan" {{ $report->kewenangan == 'Kecamatan' ? 'selected' : '' }}>Kecamatan</option>
-                        </select>
-                        <p class="text-xs text-gray-500 mt-1">Jika pilih Kecamatan, laporan akan naik ke admin kecamatan</p>
-                    </div>
-
-                    <div class="flex gap-3 pt-3">
-                        <button id="btnUpdate" class="flex-1 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition">Update Status</button>
-                        <button id="btnTolak" class="flex-1 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition">Tolak Laporan</button>
-                    </div>
-                </div>
+                </form>
             </div>
-            @elseif(($report->kewenangan ?? 'Desa') == 'Kecamatan')
+            @elseif($report->kewenangan == 'Kecamatan')
             <div class="mt-6 pt-4 border-t border-gray-300 text-center">
                 <p class="text-purple-600 font-semibold">🏛️ Laporan ini sudah menjadi kewenangan Kecamatan</p>
                 <p class="text-sm text-gray-500 mt-1">Anda hanya bisa melihat detail laporan, tidak dapat mengubah status</p>
+            </div>
+            @elseif($report->status == 'selesai')
+            <div class="mt-6 pt-4 border-t border-gray-300 text-center">
+                <p class="text-green-600 font-semibold">✅ Laporan ini telah selesai diperbaiki</p>
+                <p class="text-sm text-gray-500 mt-1">Tidak dapat mengubah status laporan yang sudah selesai</p>
             </div>
             @elseif($report->status == 'ditolak')
             <div class="mt-6 pt-4 border-t border-gray-300 text-center">
@@ -146,7 +187,7 @@
             </div>
             @endif
 
-            <!-- Tombol Kembali ke Dashboard -->
+            <!-- Tombol Kembali -->
             <div class="mt-6">
                 <a href="{{ route('admin-desa.dashboard') }}" class="block text-center px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded-lg text-sm transition">
                     Kembali ke Dashboard
@@ -180,7 +221,7 @@
                             </svg>
                         </div>
                         <h4 class="text-lg font-semibold text-gray-800">Perhatian!</h4>
-                        <p class="text-sm text-gray-600 mt-2">Status akan berubah dan pelapor akan mendapat notifikasi.</p>
+                        <p class="text-sm text-gray-600 mt-2">Status dan kewenangan akan berubah. Apakah Anda yakin?</p>
                     </div>
                     <div class="flex gap-3 mt-6">
                         <button onclick="closeModalUpdate()" class="flex-1 px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded-lg transition">Cancel</button>
@@ -191,27 +232,20 @@
         </div>
     </div>
 
-    <!-- MODAL KONFIRMASI TOLAK -->
+    <!-- MODAL TOLAK -->
     <div id="modalTolak" class="fixed inset-0 z-50 hidden overflow-y-auto">
         <div class="fixed inset-0 bg-black/50" onclick="closeModalTolak()"></div>
         <div class="relative min-h-screen flex items-center justify-center p-4">
             <div class="relative bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 overflow-hidden">
                 <div class="bg-gradient-to-r from-red-500 to-red-600 px-6 py-4 text-center">
-                    <div class="flex justify-center mb-2">
-                        <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center">
-                            <svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                            </svg>
-                        </div>
-                    </div>
-                    <h3 class="text-xl font-bold text-white">Tolak Laporan?</h3>
+                    <h3 class="text-xl font-bold text-white">Tolak Laporan</h3>
                 </div>
                 <div class="px-6 py-6">
-                    <p class="text-center text-gray-700 mb-4">Apakah Anda yakin ingin menolak laporan ini?</p>
+                    <p class="text-gray-700 mb-4">Apakah Anda yakin ingin menolak laporan ini?</p>
                     <div class="mb-4">
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Alasan Penolakan</label>
-                        <textarea id="alasanTolak" rows="3" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Masukkan alasan penolakan..."></textarea>
-                        <p class="text-xs text-gray-500 mt-1">Alasan akan dikirimkan ke pelapor</p>
+                        <textarea id="alasanTolakInput" rows="3" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Masukkan alasan penolakan..."></textarea>
+                        <p class="text-xs text-red-500 mt-1">*Wajib diisi</p>
                     </div>
                     <div class="flex gap-3">
                         <button onclick="closeModalTolak()" class="flex-1 px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded-lg transition">Batal</button>
@@ -223,117 +257,113 @@
     </div>
 
     <script>
-        function openModalUpdate() {
-            document.getElementById('modalUpdate').classList.remove('hidden');
-        }
-        function closeModalUpdate() {
-            document.getElementById('modalUpdate').classList.add('hidden');
-        }
-        function openModalTolak() {
-            document.getElementById('modalTolak').classList.remove('hidden');
-            document.getElementById('alasanTolak').value = '';
-        }
-        function closeModalTolak() {
-            document.getElementById('modalTolak').classList.add('hidden');
-        }
-        
-        // Show/hide upload foto perbaikan saat status berubah
+        // Show/hide upload foto perbaikan - HANYA saat status SELESAI
         let statusSelect = document.getElementById('statusSelect');
         let uploadFotoDiv = document.getElementById('uploadFotoPerbaikan');
-        
+
         if (statusSelect) {
             statusSelect.addEventListener('change', function() {
                 if (this.value === 'selesai') {
                     uploadFotoDiv.classList.remove('hidden');
                 } else {
                     uploadFotoDiv.classList.add('hidden');
-                    document.getElementById('fotoPerbaikan').value = '';
-                    document.getElementById('previewFoto').classList.add('hidden');
+                    let fileInput = document.getElementById('fotoPerbaikanInput');
+                    if (fileInput) fileInput.value = '';
+                    document.getElementById('previewFotoPerbaikan').classList.add('hidden');
                 }
             });
-            
-            // Cek status awal
-            if (statusSelect.value === 'selesai') {
-                uploadFotoDiv.classList.remove('hidden');
-            }
         }
-        
-        // Preview foto sebelum upload
-        let fotoPerbaikan = document.getElementById('fotoPerbaikan');
-        if (fotoPerbaikan) {
-            fotoPerbaikan.addEventListener('change', function(e) {
+
+        // Preview foto bukti perbaikan
+        let fotoPerbaikanInput = document.getElementById('fotoPerbaikanInput');
+        let previewFotoPerbaikan = document.getElementById('previewFotoPerbaikan');
+        let previewPerbaikanImg = document.getElementById('previewPerbaikanImg');
+
+        if (fotoPerbaikanInput) {
+            fotoPerbaikanInput.addEventListener('change', function(e) {
                 let file = e.target.files[0];
                 if (file) {
                     let reader = new FileReader();
                     reader.onload = function(event) {
-                        document.getElementById('previewImg').src = event.target.result;
-                        document.getElementById('previewFoto').classList.remove('hidden');
+                        previewPerbaikanImg.src = event.target.result;
+                        previewFotoPerbaikan.classList.remove('hidden');
                     };
                     reader.readAsDataURL(file);
                 }
             });
         }
-        
-        function updateStatus(status, kewenangan = null, catatan = null, alasanTolak = null) {
-            let formData = new FormData();
-            formData.append('status', status);
-            if (kewenangan) formData.append('kewenangan', kewenangan);
-            if (catatan) formData.append('catatan', catatan);
-            if (alasanTolak) formData.append('alasan_tolak', alasanTolak);
-            
-            let fotoFile = document.getElementById('fotoPerbaikan');
-            if (fotoFile && fotoFile.files[0]) {
-                formData.append('foto_perbaikan', fotoFile.files[0]);
-            }
-            
-            fetch(`/admin-desa/reports/{{ $report->id }}/status`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'X-HTTP-Method-Override': 'PATCH'
-                },
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    window.location.href = "{{ route('admin-desa.dashboard') }}";
-                } else {
-                    alert('Gagal: ' + (data.message || 'Unknown error'));
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Terjadi kesalahan: ' + error);
-            });
+
+        // MODAL UPDATE
+        let modalUpdate = document.getElementById('modalUpdate');
+        let confirmUpdateBtn = document.getElementById('confirmUpdate');
+        let updateForm = document.getElementById('updateForm');
+
+        function openModalUpdate() {
+            modalUpdate.classList.remove('hidden');
         }
-        
+
+        function closeModalUpdate() {
+            modalUpdate.classList.add('hidden');
+        }
+
         let btnUpdate = document.getElementById('btnUpdate');
-        let confirmUpdate = document.getElementById('confirmUpdate');
-        let btnTolak = document.getElementById('btnTolak');
-        let confirmTolak = document.getElementById('confirmTolak');
-        let kewenanganSelect = document.getElementById('kewenanganSelect');
-        
         if (btnUpdate) {
-            btnUpdate.addEventListener('click', () => openModalUpdate());
-        }
-        if (confirmUpdate) {
-            confirmUpdate.addEventListener('click', () => {
-                let status = statusSelect ? statusSelect.value : 'menunggu';
-                let kewenangan = kewenanganSelect ? kewenanganSelect.value : 'Desa';
-                closeModalUpdate();
-                updateStatus(status, kewenangan);
+            btnUpdate.addEventListener('click', function(e) {
+                e.preventDefault();
+                openModalUpdate();
             });
         }
-        if (btnTolak) {
-            btnTolak.addEventListener('click', () => openModalTolak());
+
+        if (confirmUpdateBtn) {
+            confirmUpdateBtn.addEventListener('click', function() {
+                updateForm.submit();
+            });
         }
+
+        // MODAL TOLAK
+        let btnTolak = document.getElementById('btnTolak');
+        let modalTolak = document.getElementById('modalTolak');
+        let confirmTolak = document.getElementById('confirmTolak');
+
+        function openModalTolak() {
+            modalTolak.classList.remove('hidden');
+        }
+
+        function closeModalTolak() {
+            modalTolak.classList.add('hidden');
+            document.getElementById('alasanTolakInput').value = '';
+        }
+
+        if (btnTolak) {
+            btnTolak.addEventListener('click', openModalTolak);
+        }
+
         if (confirmTolak) {
-            confirmTolak.addEventListener('click', () => {
-                let alasan = document.getElementById('alasanTolak').value;
-                if (!alasan) { alert('Harap masukkan alasan penolakan!'); return; }
-                let kewenangan = kewenanganSelect ? kewenanganSelect.value : 'Desa';
-                updateStatus('ditolak', kewenangan, null, alasan);
+            confirmTolak.addEventListener('click', function() {
+                let alasan = document.getElementById('alasanTolakInput').value.trim();
+                if (!alasan) {
+                    alert('Harap masukkan alasan penolakan!');
+                    return;
+                }
+
+                let oldAlasan = updateForm.querySelector('input[name="alasan_tolak"]');
+                let oldAction = updateForm.querySelector('input[name="action"]');
+                if (oldAlasan) oldAlasan.remove();
+                if (oldAction) oldAction.remove();
+
+                let inputAlasan = document.createElement('input');
+                inputAlasan.type = 'hidden';
+                inputAlasan.name = 'alasan_tolak';
+                inputAlasan.value = alasan;
+                updateForm.appendChild(inputAlasan);
+
+                let inputAction = document.createElement('input');
+                inputAction.type = 'hidden';
+                inputAction.name = 'action';
+                inputAction.value = 'tolak';
+                updateForm.appendChild(inputAction);
+
+                updateForm.submit();
             });
         }
     </script>

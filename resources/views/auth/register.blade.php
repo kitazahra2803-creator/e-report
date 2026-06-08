@@ -18,11 +18,11 @@
     </div>
 
     <div class="flex min-h-screen">
-        
+
         <!-- SISI KIRI: FORM DAFTAR -->
         <div class="w-full lg:w-1/2 flex items-center justify-center p-8 lg:p-12 bg-white">
             <div class="w-full max-w-md">
-                
+
                 <div>
                     <h2 class="text-2xl font-bold text-gray-800 mb-2">Daftar Sekarang</h2>
                     <p class="text-gray-500 text-sm mb-6">Daftarkan diri Anda sekarang sebagai pelapor masyarakat. Dengan melakukan pendaftaran, Anda dapat mengirimkan laporan secara langsung serta memantau perkembangan penanganan laporan secara online.</p>
@@ -34,7 +34,7 @@
                             <!-- Username -->
                             <div>
                                 <label class="block text-gray-700 font-semibold mb-1">Username *</label>
-                                <input type="text" name="username" value="{{ old('username') }}" required 
+                                <input type="text" name="username" value="{{ old('username') }}" required
                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                        placeholder="Masukkan username anda">
                                 @error('username') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
@@ -43,7 +43,7 @@
                             <!-- Email -->
                             <div>
                                 <label class="block text-gray-700 font-semibold mb-1">Email *</label>
-                                <input type="email" name="email" value="{{ old('email') }}" required 
+                                <input type="email" name="email" value="{{ old('email') }}" required
                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                        placeholder="Contoh@email.com">
                                 @error('email') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
@@ -52,7 +52,7 @@
                             <!-- Nama Lengkap -->
                             <div>
                                 <label class="block text-gray-700 font-semibold mb-1">Nama Lengkap *</label>
-                                <input type="text" name="name" value="{{ old('name') }}" required 
+                                <input type="text" name="name" value="{{ old('name') }}" required
                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                        placeholder="Masukkan nama lengkap anda">
                                 @error('name') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
@@ -61,7 +61,7 @@
                             <!-- Nomor Handphone -->
                             <div>
                                 <label class="block text-gray-700 font-semibold mb-1">Nomor Handphone *</label>
-                                <input type="tel" name="phone" value="{{ old('phone') }}" required 
+                                <input type="tel" name="phone" value="{{ old('phone') }}" required
                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                        placeholder="Masukkan nomor handphone anda">
                                 @error('phone') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
@@ -91,9 +91,19 @@
                                 <label class="block text-gray-700 font-semibold mb-1">Kecamatan *</label>
                                 <select name="district" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                                     <option value="">Pilih Kecamatan</option>
-                                    <option value="Pusat Kecamatan" {{ old('district') == 'Kecamatan Sindang' ? 'selected' : '' }}>Kecamatan Sindang</option>
+                                    <option value="Kecamatan Sindang" {{ old('district') == 'Kecamatan Sindang' ? 'selected' : '' }}>Kecamatan Sindang</option>
                                 </select>
                                 @error('district') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                            </div>
+
+                            <!-- KABUPATEN (TAMBAHAN) -->
+                            <div>
+                                <label class="block text-gray-700 font-semibold mb-1">Kabupaten *</label>
+                                <select name="kabupaten" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                                    <option value="">Pilih Kabupaten</option>
+                                    <option value="Kabupaten Indramayu" {{ old('kabupaten') == 'Kabupaten Indramayu' ? 'selected' : '' }}>Kabupaten Indramayu</option>
+                                </select>
+                                @error('kabupaten') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                             </div>
 
                             <!-- Provinsi -->
@@ -101,7 +111,7 @@
                                 <label class="block text-gray-700 font-semibold mb-1">Provinsi *</label>
                                 <select name="province" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                                     <option value="">Pilih Provinsi</option>
-                                    <option value="Pulau Provinsi" {{ old('province') == 'Jawa Barat' ? 'selected' : '' }}>Provinsi Jawabarat</option>
+                                    <option value="Jawa Barat" {{ old('province') == 'Jawa Barat' ? 'selected' : '' }}>Provinsi Jawa Barat</option>
                                 </select>
                                 @error('province') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                             </div>
@@ -109,7 +119,7 @@
                             <!-- Password -->
                             <div>
                                 <label class="block text-gray-700 font-semibold mb-1">Password *</label>
-                                <input type="password" name="password" required 
+                                <input type="password" name="password" required
                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                        placeholder="Masukkan password">
                                 @error('password') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
@@ -118,7 +128,7 @@
                             <!-- Konfirmasi Password -->
                             <div>
                                 <label class="block text-gray-700 font-semibold mb-1">Konfirmasi Password *</label>
-                                <input type="password" name="password_confirmation" required 
+                                <input type="password" name="password_confirmation" required
                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                        placeholder="Konfirmasi password">
                             </div>
@@ -147,7 +157,7 @@
                             <!-- Link ke Login -->
                             <div class="text-center mt-4">
                                 <p class="text-sm text-gray-600">
-                                    Sudah punya akun? 
+                                    Sudah punya akun?
                                     <a href="{{ route('login') }}" class="text-blue-600 hover:text-blue-700 font-semibold">
                                         Masuk di sini
                                     </a>
@@ -162,17 +172,17 @@
         <!-- SISI KANAN: GAMBAR + LOGO SAJA (TANPA TEKS) -->
         <div class="hidden lg:block lg:w-1/2 relative">
             <!-- Gambar Background -->
-            <img src="{{ asset('images/kecamatan_potrait.png') }}" 
-                 alt="Background" 
+            <img src="{{ asset('images/kecamatan_potrait.png') }}"
+                 alt="Background"
                  class="absolute inset-0 w-full h-full object-cover">
-            
+
             <!-- Overlay tipis -->
             <div class="absolute inset-0 bg-black/30"></div>
 
             <!-- LOGO DI SEBELAH KANAN ATAS (HANYA LOGO, TANPA TEKS) -->
             <div class="absolute top-8 right-8 z-10">
-                <img src="{{ asset('images/logo_e-report.png') }}" 
-                     alt="Logo" 
+                <img src="{{ asset('images/logo_e-report.png') }}"
+                     alt="Logo"
                      class="h-16 w-auto drop-shadow-lg">
             </div>
         </div>

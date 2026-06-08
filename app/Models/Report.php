@@ -9,22 +9,33 @@ class Report extends Model
 {
     use HasFactory;
 
+    protected $table = 'reports';
+
     protected $fillable = [
         'user_id',
         'judul',
-        'desa',
         'deskripsi',
         'lokasi',
         'foto',
         'status',
-        'kewenangan',
-        'dana_level',
+        'desa_id',
+        'kecamatan',
+        'kabupaten',
+        'provinsi',
+        'is_read',
+        'is_read_desa',
+        'is_read_kecamatan',
+        'is_read_kabupaten',
+        'is_read_provinsi',
+        'foto_perbaikan',
         'catatan',
         'catatan_kecamatan',
+        'catatan_kabupaten',     // TAMBAHKAN
+        'catatan_provinsi',      // TAMBAHKAN
         'alasan_tolak',
         'alasan_tolak_kecamatan',
-        'foto_perbaikan',
-        'desa_id',
+        'alasan_tolak_kabupaten', // TAMBAHKAN
+        'alasan_tolak_provinsi',  // TAMBAHKAN
     ];
 
     public function user()
@@ -32,8 +43,9 @@ class Report extends Model
         return $this->belongsTo(User::class);
     }
 
+    // 🔥 INI YANG PENTING! Nama methodnya harus "desaRelasi"
     public function desaRelasi()
     {
-    return $this->belongsTo(Desa::class, 'desa_id');
+        return $this->belongsTo(Desa::class, 'desa_id');
     }
 }

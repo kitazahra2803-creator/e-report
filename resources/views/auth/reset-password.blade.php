@@ -1,39 +1,74 @@
-<x-guest-layout>
-    <form method="POST" action="{{ route('password.store') }}">
-        @csrf
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reset Password - E-Report</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
 
-        <!-- Password Reset Token -->
-        <input type="hidden" name="token" value="{{ $request->route('token') }}">
+<body class="min-h-screen relative">
 
-        <!-- Email Address -->
+<!-- HEADER -->
+<div class="bg-[#7fc8c6] px-8 py-6 shadow">
+    <div class="flex items-center justify-between">
         <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email', $request->email)" required autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+            <h1 class="text-2xl font-bold text-white"></h1>
+            <p class="text-white text-sm"></p>
         </div>
+        <img src="{{ asset('images/logo_e-report.png') }}" class="h-12 bg-white px-2 py-1 rounded shadow">
+    </div>
+</div>
 
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
-            <x-text-input id="password" class="block mt-1 w-full" type="password" name="password" required autocomplete="new-password" />
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
+<!-- BACKGROUND -->
+<div class="absolute inset-0 -z-10">
+    <img src="{{ asset('images/kecamatan.jpeg') }}" class="w-full h-full object-cover">
+    <div class="absolute inset-0 bg-black/30"></div>
+</div>
 
-        <!-- Confirm Password -->
-        <div class="mt-4">
-            <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
+<!-- FORM -->
+<div class="flex justify-center mt-10">
+    <div class="w-[600px] bg-white/70 backdrop-blur-md rounded-2xl p-6 shadow-xl">
+        <h3 class="font-semibold text-base mb-1">Reset Password</h3>
+        <p class="text-sm text-gray-600 mb-4">Masukkan password baru Anda</p>
 
-            <x-text-input id="password_confirmation" class="block mt-1 w-full"
-                                type="password"
-                                name="password_confirmation" required autocomplete="new-password" />
+        <form method="POST" action="{{ route('password.update') }}">
+            @csrf
+            <input type="hidden" name="token" value="{{ request()->route('token') }}">
 
-            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
-        </div>
+            <div class="space-y-3 text-sm">
 
-        <div class="flex items-center justify-end mt-4">
-            <x-primary-button>
-                {{ __('Reset Password') }}
-            </x-primary-button>
-        </div>
-    </form>
-</x-guest-layout>
+                <!-- EMAIL -->
+                <div>
+                    <label class="font-semibold">Email</label>
+                    <input type="email" name="email" value="{{ request()->email }}" required
+                        class="w-full mt-1 bg-white rounded-lg px-4 py-2 border">
+                </div>
+
+                <!-- PASSWORD BARU -->
+                <div>
+                    <label class="font-semibold">Password Baru</label>
+                    <input type="password" name="password" required
+                        class="w-full mt-1 bg-white rounded-lg px-4 py-2 border">
+                </div>
+
+                <!-- KONFIRMASI PASSWORD -->
+                <div>
+                    <label class="font-semibold">Konfirmasi Password Baru</label>
+                    <input type="password" name="password_confirmation" required
+                        class="w-full mt-1 bg-white rounded-lg px-4 py-2 border">
+                </div>
+
+                <!-- BUTTON -->
+                <div class="flex justify-between mt-4">
+                    <a href="{{ route('login') }}" class="px-4 py-2 bg-gray-300 rounded-lg">← Kembali ke Login</a>
+                    <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-lg">Reset Password</button>
+                </div>
+
+            </div>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

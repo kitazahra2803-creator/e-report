@@ -39,6 +39,7 @@ class RegisteredUserController extends Controller
             'phone' => ['required', 'string', 'max:20'],
             'village' => ['required', 'string'],
             'district' => ['required', 'string'],
+            'kabupaten' => ['nullable', 'string', 'max:255'],
             'province' => ['required', 'string'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'terms' => ['accepted'],
@@ -52,6 +53,7 @@ class RegisteredUserController extends Controller
             'phone' => $request->phone,
             'village' => $request->village,
             'district' => $request->district,
+            'kabupaten' => $request->kabupaten,
             'province' => $request->province,
             'password' => Hash::make($request->password),
         ]);

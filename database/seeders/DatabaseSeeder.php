@@ -26,7 +26,7 @@ class DatabaseSeeder extends Seeder
 
         foreach ($desas as $data) {
             $desa = Desa::create($data);
-            
+
             User::create([
                 'username' => 'admin_' . $desa->slug,
                 'name' => 'Admin ' . $desa->nama_desa,
@@ -53,7 +53,7 @@ class DatabaseSeeder extends Seeder
             'password' => bcrypt('admin123'),
             'role' => 'admin',
         ]);
-    
+
 
     // ==================== ADMIN KABUPATEN (TAMBAHKAN) ====================
         User::create([

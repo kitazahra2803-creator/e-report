@@ -25,6 +25,7 @@ class User extends Authenticatable
         'phone',
         'village',
         'district',
+        'kabupaten',
         'province',
         'password',
         'role',           // TAMBAHKAN
@@ -59,7 +60,7 @@ class User extends Authenticatable
      */
     public function desa()
     {
-        return $this->belongsTo(Desa::class);
+        return $this->belongsTo(Desa::class, 'desa_id');
     }
 
     /**

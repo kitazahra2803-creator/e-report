@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - E-Report</title>
+    <title>Dashboard - E-Report</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
@@ -16,13 +16,18 @@
     <div class="bg-[#7fc8c6] px-8 py-6 shadow">
         <div class="flex items-center justify-between">
             <div>
-                <h1 class="text-2xl font-bold text-white">Dashboard Admin Kecamatan</h1>
+                <h1 class="text-2xl font-bold text-white">Dashboard Kecamatan</h1>
                 <p class="text-white text-sm">Admin Kecamatan Sindang</p>
             </div>
             <div class="flex items-center gap-4">
                 <div class="relative">
-                    <button id="dropdownBtn" class="flex items-center text-white text-sm font-medium focus:outline-none">
+                    <button id="dropdownBtn" class="flex items-center text-white text-sm font-medium focus:outline-none relative">
                         {{ Auth::user()->name }}
+                        @if(isset($unreadCount) && $unreadCount > 0)
+                            <span class="absolute -top-2 -right-3 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                                {{ $unreadCount }}
+                            </span>
+                        @endif
                         <svg class="ms-2 h-4 w-4 fill-current" viewBox="0 0 20 20">
                             <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/>
                         </svg>
@@ -68,21 +73,22 @@
                 </div>
             </div>
 
-            <!-- FILTER DESA & STATUS -->
+            <!-- FILTER -->
             <div class="flex flex-wrap justify-between items-center gap-3 mt-6 mb-4">
                 <div class="flex gap-3 flex-wrap">
-                    <select id="desaFilter" class="px-4 py-2 border rounded-lg text-sm bg-white shadow-sm">
-                        <option value="semua">Semua Desa</option>
-                        @foreach($desas as $desa)
-                            <option value="{{ $desa->id }}">{{ $desa->nama_desa }}</option>
-                        @endforeach
-                    </select>
                     <select id="statusFilter" class="px-4 py-2 border rounded-lg text-sm bg-white shadow-sm">
                         <option value="semua">Semua Status</option>
                         <option value="menunggu">Menunggu</option>
                         <option value="diproses">Diproses</option>
                         <option value="selesai">Selesai</option>
                         <option value="ditolak">Ditolak</option>
+                    </select>
+                    <select id="kewenanganFilter" class="px-4 py-2 border rounded-lg text-sm bg-white shadow-sm">
+                        <option value="semua">Semua Kewenangan</option>
+                        <option value="Desa">Kewenangan Desa</option>
+                        <option value="Kecamatan">Kewenangan Kecamatan</option>
+                        <option value="Kabupaten">Kewenangan Kabupaten</option>
+                        <option value="Provinsi">Kewenangan Provinsi</option>
                     </select>
                 </div>
                 <p class="text-sm text-gray-500" id="totalLaporanText">
@@ -94,7 +100,7 @@
             <div class="bg-white rounded-xl shadow overflow-hidden">
                 <div class="px-6 py-4 border-b border-gray-200">
                     <h3 class="text-lg font-semibold text-gray-800">Laporan Dari Masyarakat</h3>
-                    <p class="text-sm text-gray-500">Daftar laporan yang masuk dari seluruh desa di Kecamatan Sindang</p>
+                    <p class="text-sm text-gray-500">Daftar laporan yang masuk dari masyarakat</p>
                 </div>
                 <div class="p-4">
                     <div class="overflow-x-auto">
@@ -108,16 +114,26 @@
                                     <th class="text-left py-3 px-3 text-sm font-semibold text-gray-700">Pelapor</th>
                                     <th class="text-left py-3 px-3 text-sm font-semibold text-gray-700">Status</th>
                                     <th class="text-left py-3 px-3 text-sm font-semibold text-gray-700">Kewenangan</th>
+                                    <th class="text-left py-3 px-3 text-sm font-semibold text-gray-700">Notif</th>
+                                    <th class="text-left py-3 px-3 text-sm font-semibold text-gray-700">Alasan Ditolak</th>
                                     <th class="text-left py-3 px-3 text-sm font-semibold text-gray-700">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody id="reportsTableBody">
                                 @foreach($reports as $report)
-                                <tr class="border-b border-gray-100 hover:bg-gray-50 report-row" data-desa="{{ $report->desa_id }}" data-status="{{ $report->status }}">
+                                <tr class="border-b border-gray-100 hover:bg-gray-50 report-row"
+                                    data-status="{{ $report->status }}"
+                                    data-kewenangan="{{ $report->kewenangan ?? 'Desa' }}">
                                     <td class="py-3 px-3 text-sm text-gray-700">{{ $report->created_at->format('d/m/Y') }}</td>
                                     <td class="py-3 px-3 text-sm font-medium text-gray-800">{{ $report->judul }}</td>
                                     <td class="py-3 px-3 text-sm text-gray-700">{{ $report->lokasi }}</td>
-                                    <td class="py-3 px-3 text-sm text-gray-700">{{ $report->desa }}</td>  <!-- GANTI DI SINI -->
+                                    <td class="py-3 px-3 text-sm text-gray-700">
+                                        @if($report->desaRelasi)
+                                            {{ $report->desaRelasi->nama_desa }}
+                                        @else
+                                            -
+                                        @endif
+                                    </td>
                                     <td class="py-3 px-3 text-sm text-gray-700">{{ $report->user->name ?? 'Unknown' }}</td>
                                     <td class="py-3 px-3">
                                         <span class="px-3 py-1 text-xs rounded-full font-semibold
@@ -128,7 +144,42 @@
                                             {{ ucfirst($report->status) }}
                                         </span>
                                     </td>
-                                    <td class="py-3 px-3 text-sm text-gray-700">{{ $report->kewenangan ?? 'Desa' }}</td>
+                                    <td class="py-3 px-3">
+                                        @if($report->kewenangan == 'Kecamatan')
+                                            <span class="px-2 py-1 text-xs rounded-full bg-purple-100 text-purple-700 font-semibold">Kecamatan</span>
+                                        @elseif($report->kewenangan == 'Kabupaten')
+                                            <span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-700 font-semibold">Kabupaten</span>
+                                        @elseif($report->kewenangan == 'Provinsi')
+                                            <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-700 font-semibold">Provinsi</span>
+                                        @else
+                                            <span class="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-600">Desa</span>
+                                        @endif
+                                    </td>
+                                    <td class="py-3 px-3">
+                                        @if($report->is_read_kecamatan == false)
+                                            <span class="inline-block h-3 w-3 bg-green-500 rounded-full"></span>
+                                            <span class="text-xs text-green-600 ml-1">Baru</span>
+                                        @else
+                                            <span class="inline-block h-3 w-3 bg-gray-300 rounded-full"></span>
+                                        @endif
+                                    </td>
+                                    <td class="py-3 px-3 text-sm text-red-600 max-w-[200px] truncate">
+                                        @if($report->status == 'ditolak')
+                                            @if($report->alasan_tolak_provinsi)
+                                                Provinsi: {{ Str::limit($report->alasan_tolak_provinsi, 30) }}
+                                            @elseif($report->alasan_tolak_kabupaten)
+                                                Kabupaten: {{ Str::limit($report->alasan_tolak_kabupaten, 30) }}
+                                            @elseif($report->alasan_tolak_kecamatan)
+                                                Kecamatan: {{ Str::limit($report->alasan_tolak_kecamatan, 30) }}
+                                            @elseif($report->alasan_tolak)
+                                                Desa: {{ Str::limit($report->alasan_tolak, 30) }}
+                                            @else
+                                                -
+                                            @endif
+                                        @else
+                                            -
+                                        @endif
+                                    </td>
                                     <td class="py-3 px-3">
                                         <a href="{{ route('admin.reports.show', $report->id) }}" class="text-blue-600 hover:text-blue-800 text-sm">Detail</a>
                                     </td>
@@ -144,7 +195,6 @@
     </div>
 
     <script>
-        // Dropdown toggle
         document.getElementById('dropdownBtn').addEventListener('click', function() {
             var menu = document.getElementById('dropdownMenu');
             menu.classList.toggle('hidden');
@@ -157,30 +207,29 @@
             }
         });
 
-        // Filter desa dan status
         function filterTable() {
-            let desaValue = document.getElementById('desaFilter').value;
             let statusValue = document.getElementById('statusFilter').value;
+            let kewenanganValue = document.getElementById('kewenanganFilter').value;
             let rows = document.querySelectorAll('.report-row');
             let visibleCount = 0;
-            
+
             rows.forEach(row => {
-                let desaMatch = (desaValue === 'semua' || row.dataset.desa === desaValue);
                 let statusMatch = (statusValue === 'semua' || row.dataset.status === statusValue);
-                
-                if (desaMatch && statusMatch) {
+                let kewenanganMatch = (kewenanganValue === 'semua' || row.dataset.kewenangan === kewenanganValue);
+
+                if (statusMatch && kewenanganMatch) {
                     row.style.display = '';
                     visibleCount++;
                 } else {
                     row.style.display = 'none';
                 }
             });
-            
+
             document.getElementById('totalLaporanText').innerText = `Menampilkan ${visibleCount} dari {{ $totalReports }} laporan`;
         }
-        
-        document.getElementById('desaFilter').addEventListener('change', filterTable);
+
         document.getElementById('statusFilter').addEventListener('change', filterTable);
+        document.getElementById('kewenanganFilter').addEventListener('change', filterTable);
     </script>
 
 </body>

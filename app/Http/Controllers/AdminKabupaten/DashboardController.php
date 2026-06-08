@@ -4,30 +4,35 @@ namespace App\Http\Controllers\AdminKabupaten;
 
 use App\Http\Controllers\Controller;
 use App\Models\Report;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        // Ambil laporan dengan kewenangan Kabupaten
+        // HANYA laporan dengan kewenangan 'Kabupaten'
         $reports = Report::where('kewenangan', 'Kabupaten')
-                        ->with('user')
-                        ->latest()
-                        ->paginate(10);
-        
-        // Statistik untuk dashboard
-        $totalLaporan = Report::where('kewenangan', 'Kabupaten')->count();
-        $menunggu = Report::where('kewenangan', 'Kabupaten')->where('status', 'menunggu')->count();
-        $diproses = Report::where('kewenangan', 'Kabupaten')->where('status', 'diproses')->count();
-        $selesai = Report::where('kewenangan', 'Kabupaten')->where('status', 'selesai')->count();
-        
+            ->with(['user', 'desaRelasi'])
+            ->latest()
+            ->paginate(10);
+
+        $totalReports = Report::where('kewenangan', 'Kabupaten')->count();
+        $waitingReports = Report::where('kewenangan', 'Kabupaten')->where('status', 'menunggu')->count();
+        $processedReports = Report::where('kewenangan', 'Kabupaten')->where('status', 'diproses')->count();
+        $completedReports = Report::where('kewenangan', 'Kabupaten')->where('status', 'selesai')->count();
+
+        // Hitung yang belum dibaca oleh kabupaten
+        $unreadCount = Report::where('kewenangan', 'Kabupaten')
+            ->where('is_read_kabupaten', false)
+            ->count();
+
         return view('admin-kabupaten.dashboard', [
             'reports' => $reports,
-            'totalLaporan' => $totalLaporan,
-            'menunggu' => $menunggu,
-            'diproses' => $diproses,
-            'selesai' => $selesai,
+            'totalReports' => $totalReports,
+            'waitingReports' => $waitingReports,
+            'processedReports' => $processedReports,
+            'completedReports' => $completedReports,
+            'unreadCount' => $unreadCount,
         ]);
     }
 }

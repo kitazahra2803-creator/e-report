@@ -10,18 +10,46 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $desaId = Auth::user()->desa_id;
-        $namaDesa = Auth::user()->desa->nama_desa ?? 'Desa';
-        
-        $reports = Report::where('desa_id', $desaId)->latest()->get();
-        
+        $user = Auth::user();
+        $namaDesa = $user->desaRelasi ? $user->desaRelasi->nama_desa : 'Desa';
+
+        // HANYA ambil laporan dengan kewenangan 'Desa' dan desa_id milik admin ini
+        $reports = Report::where('desa_id', $user->desa_id)
+            ->where('kewenangan', 'Desa')  // TAMBAHKAN INI
+            ->with('user')
+            ->latest()
+            ->paginate(10);
+
+        // Hitung laporan yang belum dibaca oleh desa (hanya kewenangan Desa)
+        $unreadCount = Report::where('desa_id', $user->desa_id)
+            ->where('kewenangan', 'Desa')  // TAMBAHKAN INI
+            ->where('is_read_desa', false)
+            ->count();
+
+        $totalReports = Report::where('desa_id', $user->desa_id)
+            ->where('kewenangan', 'Desa')  // TAMBAHKAN INI
+            ->count();
+        $waitingReports = Report::where('desa_id', $user->desa_id)
+            ->where('kewenangan', 'Desa')  // TAMBAHKAN INI
+            ->where('status', 'menunggu')
+            ->count();
+        $processedReports = Report::where('desa_id', $user->desa_id)
+            ->where('kewenangan', 'Desa')  // TAMBAHKAN INI
+            ->where('status', 'diproses')
+            ->count();
+        $completedReports = Report::where('desa_id', $user->desa_id)
+            ->where('kewenangan', 'Desa')  // TAMBAHKAN INI
+            ->where('status', 'selesai')
+            ->count();
+
         return view('admin-desa.dashboard', [
             'reports' => $reports,
-            'totalReports' => $reports->count(),
-            'waitingReports' => $reports->where('status', 'menunggu')->count(),
-            'processedReports' => $reports->where('status', 'diproses')->count(),
-            'completedReports' => $reports->where('status', 'selesai')->count(),
             'namaDesa' => $namaDesa,
+            'totalReports' => $totalReports,
+            'waitingReports' => $waitingReports,
+            'processedReports' => $processedReports,
+            'completedReports' => $completedReports,
+            'unreadCount' => $unreadCount,
         ]);
     }
 }

@@ -13,12 +13,14 @@ class ReportController extends Controller
         $this->middleware('auth');
     }
 
-    // ================= DASHBOARD =================
     public function index()
     {
         $reports = Report::where('user_id', Auth::id())
+            ->with('desaRelasi')
             ->latest()
             ->get();
+
+        $unreadCount = $reports->where('is_read', false)->count();
 
         return view('dashboard', [
             'reports' => $reports,
@@ -26,137 +28,112 @@ class ReportController extends Controller
             'waitingReports' => $reports->where('status', 'menunggu')->count(),
             'processedReports' => $reports->where('status', 'diproses')->count(),
             'completedReports' => $reports->where('status', 'selesai')->count(),
+            'unreadCount' => $unreadCount,
         ]);
     }
 
-    // ================= FORM CREATE =================
     public function create()
     {
         $desas = \App\Models\Desa::all();
         return view('reports.create', compact('desas'));
     }
 
-    // ================= STORE =================
     public function store(Request $request)
     {
-        $request->validate([
-            'judul' => 'required|string|max:255',
-            'lokasi' => 'required|string',
-            'deskripsi' => 'required|string',
-            'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-        ]);
-
-        $pathFoto = null;
+        $report = new Report();
+        $report->user_id = Auth::id();
+        $report->judul = $request->judul;
+        $report->lokasi = $request->lokasi;
+        $report->deskripsi = $request->deskripsi;
+        $report->desa_id = $request->desa_id;
+        $report->kecamatan = $request->kecamatan;
+        $report->kabupaten = $request->kabupaten;
+        $report->provinsi = $request->provinsi;
+        $report->status = 'menunggu';
+        $report->kewenangan = 'Desa';
+        $report->is_read = false;
+        $report->is_read_desa = false;
+        $report->is_read_kecamatan = false;
+        $report->is_read_kabupaten = false;
+        $report->is_read_provinsi = false;
 
         if ($request->hasFile('foto')) {
-            $pathFoto = $request->file('foto')->store('reports', 'public');
+            $file = $request->file('foto');
+            $filename = time() . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads/reports'), $filename);
+            $report->foto = 'uploads/reports/' . $filename;
         }
 
-        // Tentukan kewenangan berdasarkan pilihan yang diisi
-        $kewenangan = null;
-        if ($request->desa_id) {
-            $kewenangan = 'Desa';
-        } elseif ($request->kecamatan) {
-            $kewenangan = 'Kecamatan';
-        } elseif ($request->kabupaten) {
-            $kewenangan = 'Kabupaten';
-        } elseif ($request->provinsi) {
-            $kewenangan = 'Provinsi';
-        }
+        $report->save();
 
-        // Data untuk desa
-        $desaNama = null;
-        $desaId = null;
-        if ($request->desa_id) {
-            $desa = \App\Models\Desa::find($request->desa_id);
-            $desaNama = $desa->nama_desa;
-            $desaId = $request->desa_id;
-        }
-
-        $report = Report::create([
-            'user_id' => Auth::id(),
-            'judul' => $request->judul,
-            'desa' => $desaNama,
-            'desa_id' => $desaId,
-            'kecamatan' => $request->kecamatan,
-            'kabupaten' => $request->kabupaten,
-            'provinsi' => $request->provinsi,
-            'lokasi' => $request->lokasi,
-            'kewenangan' => $kewenangan,
-            'deskripsi' => $request->deskripsi,
-            'foto' => $pathFoto,
-            'status' => 'menunggu',
-        ]);
-
-        // REDIRECT KE SUCCESS PAGE
-        return redirect()->route('reports.success', $report->id);
+        return redirect()->route('dashboard')->with('success', 'Laporan berhasil dikirim!');
     }
 
-    // ================= SUCCESS PAGE =================
-    public function success($id)
-    {
-        $report = Report::findOrFail($id);
-
-        if ($report->user_id !== Auth::id()) {
-            abort(403);
-        }
-
-        return view('reports.success', compact('report'));
-    }
-
-    // ================= SHOW DETAIL =================
     public function show(Report $report)
     {
         if ($report->user_id !== Auth::id()) {
             abort(403);
         }
 
+        if ($report->is_read == false) {
+            $report->is_read = true;
+            $report->save();
+        }
+
         return view('reports.show', compact('report'));
     }
 
-    // ================= EDIT =================
     public function edit(Report $report)
     {
         if ($report->user_id !== Auth::id()) {
             abort(403);
         }
 
-        return view('reports.edit', compact('report'));
+        $desas = \App\Models\Desa::all();
+        return view('reports.edit', compact('report', 'desas'));
     }
 
-    // ================= UPDATE =================
     public function update(Request $request, Report $report)
     {
         if ($report->user_id !== Auth::id()) {
             abort(403);
         }
 
-        $request->validate([
-            'judul' => 'required|string|max:255',
-            'deskripsi' => 'required|string',
-            'lokasi' => 'required|string',
-        ]);
+        $report->judul = $request->judul;
+        $report->lokasi = $request->lokasi;
+        $report->deskripsi = $request->deskripsi;
+        $report->desa_id = $request->desa_id;
+        $report->kecamatan = $request->kecamatan;
+        $report->kabupaten = $request->kabupaten;
+        $report->provinsi = $request->provinsi;
 
-        $report->update([
-            'judul' => $request->judul,
-            'deskripsi' => $request->deskripsi,
-            'lokasi' => $request->lokasi,
-        ]);
+        if ($request->hasFile('foto')) {
+            if ($report->foto && file_exists(public_path($report->foto))) {
+                unlink(public_path($report->foto));
+            }
 
-        return redirect()->route('reports.show', $report->id)
-            ->with('success', 'Laporan berhasil diupdate!');
+            $file = $request->file('foto');
+            $filename = time() . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads/reports'), $filename);
+            $report->foto = 'uploads/reports/' . $filename;
+        }
+
+        $report->save();
+
+        return redirect()->route('reports.show', $report->id)->with('success', 'Laporan berhasil diupdate!');
     }
 
-    // ================= DELETE =================
     public function destroy(Report $report)
     {
         if ($report->user_id !== Auth::id()) {
             abort(403);
         }
 
-        $report->delete();
+        if ($report->foto && file_exists(public_path($report->foto))) {
+            unlink(public_path($report->foto));
+        }
 
-        return redirect()->route('dashboard')
-            ->with('success', 'Laporan berhasil dihapus!');
+        $report->delete();
+        return redirect()->route('dashboard')->with('success', 'Laporan dihapus!');
     }
 }
